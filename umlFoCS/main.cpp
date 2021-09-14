@@ -1,23 +1,29 @@
 #include <iostream>
 #include <stdio.h>
-#include <list>
+#include <vector>
 
 using namespace std;
 
-void generateNthString();
+int generateNthString(vector<int> v, int n);
 
 int main(int argc, char argv[]) {
 
-	list<int> l = {0, 1, 2}; // alphabet
+	vector<int> v = {0, 1}; // alphabet
 
-	list<int> s1; // string
+	vector<int> s1; // string
 
-
+	generateNthString(v, 5);
 
 	return 0;
 }
 
-void generateNthString() {
+int generateNthString(vector<int> v, int n) {
+
+	if (n == 1) return -1;
+
+	if (n > 1 && n < v.size()) return v[n];
+
+	
 
 
 
