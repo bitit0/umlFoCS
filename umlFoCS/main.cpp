@@ -4,22 +4,53 @@
 #include <list>
 #include <math.h>
 #include <algorithm>
+#include <functional>
 
 using namespace std;
-
-//int layer(int n);
 
 void generateNthString(vector<int> v, int n);
 
 void genBinString(vector<vector<int>>& layer, int n, vector<int> v);
 
+template<typename State>
+class DFA {
+public:
+	//DFA(bool (*Qp)(State), State q0p, State (*Dp)(State, int), bool (*Fp)(State)): Q(Qp), q0(q0p), D(Dp), F(Fp) {};
+	DFA(function<bool(State)> Qp, State q0p, function<State(State, int)> Dp, function<bool(State)> Fp): Q(Qp), q0(q0p), D(Dp), F(Fp) {};
+	//bool (*Q)(State); // Set of states
+	//State q0; // Start state
+	//State (*D)(State, int); // Transition
+	//bool (*F)(State); // Accepting states?
+	function<bool(State)> Q;
+	State q0;
+	function<State(State, int)> D;
+	function<bool(State)> F;
+
+};
+
+DFA<char> onlyCharDFA(char in);
+
 int main() {
 
-	vector<int> v = {0, 1, 2}; // alphabet
+	vector<int> v = {0, 1}; // alphabet
 
 	vector<int> s1; // string
 
-	generateNthString(v, 40);
+	generateNthString(v, 39);
+
+	DFA<char>* onlyEmptyString = new DFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b'); },
+		'a',
+		[](char qi, int c) { return 'b'; },
+		[](char qi) { return qi == 'a'; }
+	);
+
+	DFA<char>* acceptNoStrings = new DFA<char>(
+		[](char x) { return x == 'a'; },
+		'a',
+		[](char qi, int c) { return 'a'; },
+		[](char qi) { return false; }
+	);
 
 	return 0;
 }
@@ -55,7 +86,6 @@ void genBinString(vector<list<int>>& layer, int n, vector<int> v) {
 	genBinString(layer, n - 1, v);
 
 }
-
 
 void generateNthString(vector<int> v, int n) {
 
@@ -122,5 +152,16 @@ void generateNthString(vector<int> v, int n) {
 
 
 
+
+}
+
+DFA<char> onlyCharDFA(char in) {
+
+	return DFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b'); },
+		'a',
+		[in](char qi, int c) { if (c == in) return 'b'; },
+		[](char qi) { return qi == 'a'; }
+		);
 
 }
