@@ -52,6 +52,195 @@ int main() {
 		[](char qi) { return false; }
 	);
 
+	// Dozen Example DFAs
+
+	DFA<char>* binaryString = new DFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b') || (x == 'f'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a' || qi == 'b')
+				if (c == 0 || c == 1) return 'b';
+			return 'f';
+		},
+		[](char qi) { return (qi == 'b'); }
+	);
+	DFA<char>* onlyOnes = new DFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b') || (x == 'f'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a' || qi == 'b')
+				if (c == 1) return 'b';
+			return 'f';
+		},
+		[](char qi) { return (qi == 'b'); }
+		);
+
+	DFA<char>* onlyZeros = new DFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b') || (x == 'f'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a' || qi == 'b')
+				if (c == 0) return 'b';
+			return 'f';
+		},
+		[](char qi) { return (qi == 'b'); }
+		);
+		
+	DFA<char>* alternatingBinary = new DFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b') || (x == 'c') || (x == 'f'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				if (c == 0) return 'b';
+				if (c == 1) return 'c';
+				return 'f';
+			}
+			if (qi == 'b') {
+				if (c == 1) return 'c';
+				return 'f';
+			}
+			if (qi == 'c') {
+				if (c == 0) return 'b';
+				return 'f';
+			}
+		},
+		[](char qi) { return (qi == 'b') || (qi == 'c'); }
+		);
+
+	DFA<char>* evenLength = new DFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				return 'b';
+			}
+			else {
+				return 'a';
+			}
+		},
+		[](char qi) { return (qi == 'a'); }
+		);
+
+	DFA<char>* oddNum = new DFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				if (c == 0) return 'a';
+				if (c == 1) return 'b';
+			}
+			if (qi == 'b') {
+				if (c == 0) return 'a';
+				if (c == 1) return 'b';
+			}
+		},
+		[](char qi) { return (qi == 'b'); }
+		);
+	DFA<char>* evenNum = new DFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				if (c == 0) return 'a';
+				if (c == 1) return 'b';
+			}
+			if (qi == 'b') {
+				if (c == 0) return 'a';
+				if (c == 1) return 'b';
+			}
+		},
+		[](char qi) { return (qi == 'a'); }
+		);
+	DFA<char>* containsOne = new DFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				if (c == 0) return 'a';
+				if (c == 1) return 'b';
+			}
+			if (qi == 'b') {
+				if (c == 0 || c == 1) return 'b';
+			}
+		},
+		[](char qi) { return (qi == 'b'); }
+		);
+
+	// 4 more
+
+	DFA<char>* containsZero = new DFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				if (c == 0) return 'b';
+				if (c == 1) return 'a';
+			}
+			if (qi == 'b') {
+				if (c == 0 || c == 1) return 'b';
+			}
+		},
+		[](char qi) { return (qi == 'b'); }
+		);
+	DFA<char>* contains0011 = new DFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b') || (x == 'c') || (x == 'd') || (x == 'e'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				return c == 1 ? 'a' : 'b';
+			}
+			if (qi == 'b') {
+				return c == 1 ? 'a' : 'c';
+			}
+			if (qi == 'c') {
+				return c == 1 ? 'd' : 'b';
+			}
+			if (qi == 'd') {
+				return c == 1 ? 'e' : 'a';
+			}
+			if (qi == 'e') {
+				return 'e';
+			}
+		},
+		[](char qi) { return (qi == 'e'); }
+		);
+
+	// 2 more
+	DFA<char>* startsOneEndsZero = new DFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b') || (x == 'c') || (x == 'f'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				return c == 1 ? 'b' : 'f';
+			}
+			if (qi == 'b') {
+				return c == 1 ? 'b' : 'c';
+			}
+			if (qi == 'c') {
+				return c == 1 ? 'b' : 'c';
+			}
+			if (qi == 'f') return 'f';
+		},
+		[](char qi) { return (qi == 'c'); }
+		);
+	DFA<char>* threeConsecutiveZeros = new DFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b') || (x == 'c') || (x == 'd'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				return c == 1 ? 'a' : 'b';
+			}
+			if (qi == 'b') {
+				return c == 1 ? 'a' : 'c';
+			}
+			if (qi == 'c') {
+				return c == 1 ? 'a' : 'd';
+			}
+			if (qi == 'd') return 'd';
+		},
+		[](char qi) { return (qi == 'd'); }
+		);
+
 	return 0;
 }
 
