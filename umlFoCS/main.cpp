@@ -34,9 +34,9 @@ DFA<char> onlyCharDFA(char in);
 
 int main() {
 
-	vector<int> v = {0, 1}; // alphabet
+	vector<int> v = {0, 1, 2}; // alphabet
 
-	generateNthString(v, 39);
+	generateNthString(v, 40);
 
 	DFA<char>* onlyEmptyString = new DFA<char>(
 		[](char x) { return (x == 'a') || (x == 'b'); },
@@ -569,11 +569,13 @@ void generateNthString(vector<int> v, int n) {
 
 DFA<char> onlyCharDFA(char in) {
 
+	int count = 0;
+
 	return DFA<char>(
 		[](char x) { return (x == 'a') || (x == 'b'); },
 		'a',
-		[in](char qi, int c) { if (c == in) return 'b'; },
-		[](char qi) { return qi == 'a'; }
+		[in, &count](char qi, int c) { if (c == in && count == 0) { count++; return 'b'; } return 'a'; },
+		[](char qi) { return qi == 'b'; }
 		);
 
 }
