@@ -12,8 +12,6 @@ void generateNthString(vector<int> v, int n);
 
 void genBinString(vector<list<int>>& layer, int n, vector<int> v);
 
-
-
 template<typename State>
 class DFA {
 public:
@@ -37,8 +35,6 @@ DFA<char> onlyCharDFA(char in);
 int main() {
 
 	vector<int> v = {0, 1}; // alphabet
-
-	vector<int> s1; // string
 
 	generateNthString(v, 39);
 
