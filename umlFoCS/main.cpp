@@ -9,8 +9,8 @@
 using namespace std;
 
 void generateNthString(vector<int> v, int n);
-
 void genBinString(vector<list<int>>& layer, int n, vector<int> v);
+
 
 template<typename State>
 class DFA {
@@ -29,8 +29,8 @@ public:
 };
 
 bool acceptsString(DFA<char> d, list<int> l);
-
 DFA<char> onlyCharDFA(char in);
+void trace(DFA<char> automata, list<int> l);
 
 int main() {
 
@@ -464,6 +464,10 @@ int main() {
 		}
 	}
 
+	list<int> traceTest = {1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0};
+
+	trace(*threeConsecutiveZeros, traceTest);
+
 	return 0;
 }
 
@@ -591,4 +595,23 @@ bool acceptsString(DFA<char> automata, list<int> l) {
 	}
 
 	return automata.F(qi);
+}
+
+void trace(DFA<char> automata, list<int> l) {
+
+	char qi = automata.q0;
+	cout << "String: ";
+	for (auto c : l) {
+
+		cout << c;
+	}
+	cout << " -> ";
+	for (int curr : l) {
+
+		qi = automata.D(qi, curr);
+		cout << qi << " ";
+
+	}
+	cout << endl;
+
 }
