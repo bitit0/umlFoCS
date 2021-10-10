@@ -31,6 +31,8 @@ public:
 bool acceptsString(DFA<char> d, list<int> l);
 DFA<char> onlyCharDFA(char in);
 void trace(DFA<char> automata, list<int> l);
+list<int> DFAtoString(DFA<char> automata, list<int> s, vector<int> alphabet);
+DFA<char> compDFA(DFA<char> automata);
 
 int main() {
 
@@ -468,6 +470,15 @@ int main() {
 
 	trace(*threeConsecutiveZeros, traceTest);
 
+	list<int> empty;
+	list<int> str = DFAtoString(*threeConsecutiveZeros, empty, v);
+
+	//for (auto x : str) {
+
+
+
+	//}
+
 	return 0;
 }
 
@@ -591,7 +602,6 @@ bool acceptsString(DFA<char> automata, list<int> l) {
 		
 		qi = automata.D(qi, curr);
 
-
 	}
 
 	return automata.F(qi);
@@ -609,9 +619,53 @@ void trace(DFA<char> automata, list<int> l) {
 	for (int curr : l) {
 
 		qi = automata.D(qi, curr);
-		cout << qi << " ";
+		cout << qi << ", ";
 
 	}
-	cout << endl;
+	cout << "\b\b \b" << endl;
 
 }
+
+list<int> DFAtoString(DFA<char> automata, list<int> s, vector<int> alphabet) {
+
+	// DFAtoString(*threeConsecutiveZeros, s, v, visited, threeConsecutiveZeros.q0);
+
+	if (acceptsString(automata, s)) return s;
+
+	vector<list<int>> ns; // new strings
+
+	for (int i = 0; i < alphabet.size(); i++) {
+
+		ns.push_back(s);
+		ns.push_back(s);
+
+	}
+
+	for (int i = 0; i < alphabet.size(); i++) {
+
+		ns.at(i).push_back(i);
+		DFAtoString(automata, ns.at(i), alphabet);
+
+	}
+
+	list<int> no = { -1 };
+	return no;
+
+}
+
+DFA<char> compDFA(DFA<char> automata) {
+
+	auto Q = automata.Q;
+	auto q0 = automata.q0;
+	auto D = automata.D;
+	auto F = [=](char qi) { return !(automata.F); };
+
+	return DFA<char>(
+		Q,
+		q0,
+		D,
+		F
+		);
+
+}
+
