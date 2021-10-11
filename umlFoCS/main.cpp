@@ -5,38 +5,34 @@
 #include <math.h>
 #include <algorithm>
 #include <functional>
+#include <optional>
 
 using namespace std;
 
 void generateNthString(vector<int> v, int n);
 void genBinString(vector<list<int>>& layer, int n, vector<int> v);
 
-
 template<typename State>
 class DFA {
 public:
-	//DFA(bool (*Qp)(State), State q0p, State (*Dp)(State, int), bool (*Fp)(State)): Q(Qp), q0(q0p), D(Dp), F(Fp) {};
-	DFA(function<bool(State)> Qp, State q0p, function<State(State, int)> Dp, function<bool(State)> Fp): Q(Qp), q0(q0p), D(Dp), F(Fp) {};
-	//bool (*Q)(State); // Set of states
-	//State q0; // Start state
-	//State (*D)(State, int); // Transition
-	//bool (*F)(State); // Accepting states?
-	function<bool(State)> Q;
-	State q0;
-	function<State(State, int)> D;
-	function<bool(State)> F;
+	DFA(function<bool(State)> Qp, State q0p, function<State(State, int)> Dp, function<bool(State)> Fp) : Q(Qp), q0(q0p), D(Dp), F(Fp) {};
+	function<bool(State)> Q; // Set of states 
+	State q0; // Start state
+	function<State(State, int)> D; // Transition
+	function<bool(State)> F; // Set of states 
 
 };
 
 bool acceptsString(DFA<char> d, list<int> l);
 DFA<char> onlyCharDFA(char in);
 void trace(DFA<char> automata, list<int> l);
-list<int> DFAtoString(DFA<char> automata, list<int> s, vector<int> alphabet);
+optional<list<int>> DFAtoString(DFA<char> automata, vector<int> alphabet);
 DFA<char> compDFA(DFA<char> automata);
+//DFA<char> unionDFA(DFA<char> a1, DFA<char> a2);
 
 int main() {
 
-	vector<int> v = {0, 1, 2}; // alphabet
+	vector<int> v = { 0, 1}; // alphabet
 
 	generateNthString(v, 40);
 
@@ -65,7 +61,7 @@ int main() {
 			return 'f';
 		},
 		[](char qi) { return (qi == 'b'); }
-	);
+		);
 	DFA<char>* onlyOnes = new DFA<char>(
 		[](char x) { return (x == 'a') || (x == 'b') || (x == 'f'); },
 		'a',
@@ -87,7 +83,7 @@ int main() {
 		},
 		[](char qi) { return (qi == 'b'); }
 		);
-		
+
 	DFA<char>* alternatingBinary = new DFA<char>(
 		[](char x) { return (x == 'a') || (x == 'b') || (x == 'c') || (x == 'f'); },
 		'a',
@@ -355,7 +351,7 @@ int main() {
 			cout << "evenLength reject fail." << endl;
 		}
 	}
-	
+
 	// contains one
 	accept = { {1, 0}, {1, 0, 0, 0}, {0, 1, 0, 0, 1, 0}, {1, 0, 1, 0}, {0, 1, 0, 1}, {0, 1} };
 	reject = { {2, 2, 3}, {3, 0, 2}, {2, 8, 0}, {0, 7, 3, 9, 5}, {8, 10, 11}, {89, 91, 23, 85, 19, 12, 102} };
@@ -466,18 +462,19 @@ int main() {
 		}
 	}
 
-	list<int> traceTest = {1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0};
+	list<int> traceTest = { 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0 };
 
-	trace(*threeConsecutiveZeros, traceTest);
+	trace(*startsOneEndsZero, traceTest);
 
-	list<int> empty;
-	list<int> str = DFAtoString(*threeConsecutiveZeros, empty, v);
+	auto str = DFAtoString(*threeConsecutiveZeros, v).value_or(list<int>(7));
 
-	//for (auto x : str) {
+	for (auto s : str) {
 
+		cout << s;
 
+	}
 
-	//}
+	cout << endl;
 
 	return 0;
 }
@@ -493,7 +490,7 @@ void genBinString(vector<list<int>>& layer, int n, vector<int> v) {
 
 	int layerSize = layer.size();
 
-	for (int i = 0; i < v.size()-1; i++) {
+	for (int i = 0; i < v.size() - 1; i++) {
 
 		for (int j = 0; j < layerSize; j++) {
 
@@ -573,7 +570,7 @@ void generateNthString(vector<int> v, int n) {
 	}
 	cout << endl;
 
-	
+
 
 
 
@@ -591,15 +588,15 @@ DFA<char> onlyCharDFA(char in) {
 		'a',
 		[in, &count](char qi, int c) { if (c == in && count == 0) { count++; return 'b'; } return 'a'; },
 		[](char qi) { return qi == 'b'; }
-		);
+	);
 
 }
 
 bool acceptsString(DFA<char> automata, list<int> l) {
-	
+
 	char qi = automata.q0;
 	for (int curr : l) {
-		
+
 		qi = automata.D(qi, curr);
 
 	}
@@ -626,30 +623,65 @@ void trace(DFA<char> automata, list<int> l) {
 
 }
 
-list<int> DFAtoString(DFA<char> automata, list<int> s, vector<int> alphabet) {
+optional<list<int>> DFAtoString(DFA<char> automata, vector<int> alphabet) {
 
-	// DFAtoString(*threeConsecutiveZeros, s, v, visited, threeConsecutiveZeros.q0);
+	list<int> V;
+	list<pair<char, list<int>>> H;
+	V.push_back(automata.q0);
+	pair<char, list<int>> first(automata.q0, list<int>());
+	H.push_back(first);
 
-	if (acceptsString(automata, s)) return s;
 
-	vector<list<int>> ns; // new strings
+	while (!H.empty()) {
 
-	for (int i = 0; i < alphabet.size(); i++) {
+		cout << "inside h empty loop" << endl;
 
-		ns.push_back(s);
-		ns.push_back(s);
+		pair<char, list<int>> temp(H.front());
+		H.pop_front();
 
-	}
+		if (automata.F(temp.first)) return temp.second;
 
-	for (int i = 0; i < alphabet.size(); i++) {
+		cout << "temp.first: " << temp.first << endl << endl;
 
-		ns.at(i).push_back(i);
-		DFAtoString(automata, ns.at(i), alphabet);
 
-	}
+		for (auto c : alphabet) {
 
-	list<int> no = { -1 };
-	return no;
+			//cout << "temp.first: " << temp.first << " -> ";
+			cout << temp.first << "," << c << " -> ";
+
+			auto qj = automata.D(temp.first, c);
+
+			//cout << "qj: " << qj;;
+			//cout << " c: " << c << endl << endl;
+			cout << qj << "," << c << endl << endl;
+			
+
+			bool inV = false;
+			for (auto g : V) {
+
+				if (g == qj) inV = true;
+
+			}
+
+			if (!inV) {
+
+				V.push_back(qj);
+
+				list<int> templist(temp.second);
+				templist.push_back(c);
+				pair<char, list<int>> push(qj, templist);
+				
+				H.push_back(push);
+
+			}
+
+		}
+
+	};
+
+	cout << "return nullopt" << endl;
+
+	return nullopt;
 
 }
 
@@ -668,4 +700,6 @@ DFA<char> compDFA(DFA<char> automata) {
 		);
 
 }
+
+//DFA<char> unionDFA(DFA<char> a1, DFA<char> a2) {}
 
