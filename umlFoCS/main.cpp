@@ -29,13 +29,15 @@ void trace(DFA<char> automata, list<int> l);
 optional<list<int>> DFAtoString(DFA<char> automata, vector<int> alphabet);
 DFA<char> compDFA(DFA<char> automata);
 DFA<pair<char, char>> unionDFA(DFA<char> a1, DFA<char> a2);
+DFA<pair<char, char>> intersectDFA(DFA<char> a1, DFA<char> a2);
 
 int main() {
 
-	vector<int> v = { 0, 1}; // alphabet
+	vector<int> v = { 0, 1 }; // alphabet
 
 	generateNthString(v, 40);
 
+	// DFAs
 	DFA<char>* onlyEmptyString = new DFA<char>(
 		[](char x) { return (x == 'a') || (x == 'b'); },
 		'a',
@@ -246,9 +248,7 @@ int main() {
 		[](char qi) { return (qi == 'd'); }
 		);
 
-	/// //////////////////////// start of tests
-	//////////////////////////////////////////////
-
+	// acceptsString Tests
 	vector<list<int>> accept = { {0, 1}, {0, 1, 1}, {1, 0, 1}, {0, 1, 0, 1}, {1}, {1, 0, 0} };
 	vector<list<int>> reject = { {1, 2}, {2, 3}, {4, 5}, {6, 7}, {8, 10}, {89, 91} };
 
@@ -725,4 +725,30 @@ DFA<pair<char, char>> unionDFA(DFA<char> a1, DFA<char> a2) {
 		);
 
 }
+
+DFA<pair<char, char>> intersectDFA(DFA<char> a1, DFA<char> a2) {
+
+	function<bool(char)> a1_Q = a1.Q;
+	function<bool(char)> a2_Q = a2.Q;
+
+	function<char(char, int)> a1_D = a1.D;
+	function<char(char, int)> a2_D = a2.D;
+
+	function<bool(char)> a1_F = a1.F;
+	function<bool(char)> a2_F = a2.F;
+
+	return DFA<pair<char, char>>(
+		[a1_Q, a2_Q](pair<char, char> p) { return a1_Q(p.first) && a2_Q(p.second); },
+		pair<char, char>{a1.q0, a2.q0},
+		[a1_D, a2_D](pair<char, char> p, int c) {
+			char d1 = a1_D(p.first, c);
+			char d2 = a2_D(p.second, c);
+
+			return pair<char, char>(d1, d2);
+		},
+		[a1_F, a2_F](pair<char, char> p) { return a1_F(p.first) && a2_F(p.first); }
+		);
+
+}
+
 
