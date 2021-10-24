@@ -28,7 +28,7 @@ DFA<char> onlyCharDFA(char in);
 void trace(DFA<char> automata, list<int> l);
 optional<list<int>> DFAtoString(DFA<char> automata, vector<int> alphabet);
 DFA<char> compDFA(DFA<char> automata);
-//DFA<char> unionDFA(DFA<char> a1, DFA<char> a2);
+DFA<pair<char, char>> unionDFA(DFA<char> a1, DFA<char> a2);
 
 int main() {
 
@@ -474,6 +474,11 @@ int main() {
 
 	}
 
+	//cout << "\ncomplement test:\n ";
+
+	//auto compTest = compDFA(*threeConsecutiveZeros);
+	//str = DFAtoString(compTest, v).value_or(list<int>(7));
+
 	cout << endl;
 
 	return 0;
@@ -634,26 +639,26 @@ optional<list<int>> DFAtoString(DFA<char> automata, vector<int> alphabet) {
 
 	while (!H.empty()) {
 
-		cout << "inside h empty loop" << endl;
+		//cout << "inside h empty loop" << endl;
 
 		pair<char, list<int>> temp(H.front());
 		H.pop_front();
 
 		if (automata.F(temp.first)) return temp.second;
 
-		cout << "temp.first: " << temp.first << endl << endl;
+		//cout << "temp.first: " << temp.first << endl << endl;
 
 
 		for (auto c : alphabet) {
 
 			//cout << "temp.first: " << temp.first << " -> ";
-			cout << temp.first << "," << c << " -> ";
+			//cout << temp.first << "," << c << " -> ";
 
 			auto qj = automata.D(temp.first, c);
 
 			//cout << "qj: " << qj;;
 			//cout << " c: " << c << endl << endl;
-			cout << qj << "," << c << endl << endl;
+			//cout << qj << "," << c << endl << endl;
 			
 
 			bool inV = false;
@@ -692,14 +697,32 @@ DFA<char> compDFA(DFA<char> automata) {
 	auto D = automata.D;
 	auto F = [=](char qi) { return !(automata.F); };
 
-	return DFA<char>(
-		Q,
-		q0,
-		D,
-		F
-		);
+	return DFA<char>(Q, q0, D, F);
 
 }
 
-//DFA<char> unionDFA(DFA<char> a1, DFA<char> a2) {}
+DFA<pair<char, char>> unionDFA(DFA<char> a1, DFA<char> a2) {
+
+	function<bool(char)> a1_Q = a1.Q;
+	function<bool(char)> a2_Q = a2.Q;
+
+	function<char(char, int)> a1_D = a1.D;
+	function<char(char, int)> a2_D = a2.D;
+
+	function<bool(char)> a1_F = a1.F;
+	function<bool(char)> a2_F = a2.F;
+
+	return DFA<pair<char, char>>(
+		[a1_Q, a2_Q](pair<char, char> p) { return a1_Q(p.first) && a2_Q(p.second); },
+		pair<char, char>{a1.q0, a2.q0},
+		[a1_D, a2_D](pair<char, char> p, int c) {
+			char d1 = a1_D(p.first, c);
+			char d2 = a2_D(p.second, c);
+		
+			return pair<char, char>(d1, d2);
+		},
+		[a1_F, a2_F](pair<char, char> p) { return a1_F(p.first) || a2_F(p.first); }
+		);
+
+}
 
