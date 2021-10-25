@@ -946,7 +946,7 @@ DFA<T> compDFA(DFA<T> automata) {
 	auto Q = automata.Q;
 	auto q0 = automata.q0;
 	auto D = automata.D;
-	auto F = [=](char qi) { return !(automata.F); };
+	auto F = [=](T qi) { return !(automata.F(qi)); };
 
 	return DFA<T>(Q, q0, D, F);
 
@@ -973,7 +973,7 @@ DFA<pair<A, B>> unionDFA(DFA<A> a1, DFA<B> a2) {
 		
 			return pair<A, B>(d1, d2);
 		},
-		[a1_F, a2_F](pair<A, B> p) { return a1_F(p.first) || a2_F(p.first); }
+		[a1_F, a2_F](pair<A, B> p) { return a1_F(p.first) || a2_F(p.second); }
 		);
 
 }
@@ -999,7 +999,7 @@ DFA<pair<A, B>> intersectDFA(DFA<A> a1, DFA<B> a2) {
 
 			return pair<A, B>(d1, d2);
 		},
-		[a1_F, a2_F](pair<A, B> p) { return a1_F(p.first) && a2_F(p.first); }
+		[a1_F, a2_F](pair<A, B> p) { return a1_F(p.first) && a2_F(p.second); }
 		);
 
 }
