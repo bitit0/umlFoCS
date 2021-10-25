@@ -37,6 +37,9 @@ DFA<pair<char, char>> intersectDFA(DFA<char> a1, DFA<char> a2);
 bool subset(DFA<char> a1, DFA<char> a2, vector<int> alphabet);
 bool equality(DFA<char> a1, DFA<char> a2);
 
+void unionTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e, DFA<char> f, DFA<char> g, DFA<char> h, DFA<char> i, DFA<char> j, DFA<char> k, DFA<char> l, vector<int> alphabet);
+void intersectTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e, DFA<char> f, DFA<char> g, DFA<char> h, DFA<char> i, DFA<char> j, DFA<char> k, DFA<char> l, vector<int> alphabet);
+
 int main() {
 
 	vector<int> v = { 0, 1 }; // alphabet
@@ -477,14 +480,14 @@ int main() {
 
 	if (!acceptsString(*threeConsecutiveZeros, { 0, 0, 0 })) { cout << "HUGE ERROR" << endl; };
 
-	// Task 10 Test
-	cout << "\nTask 10 test: " << endl << endl;
-	vector<DFA<char>> task10test = {*binaryString, *onlyOnes, *onlyZeros, *alternatingBinary, *evenLength, *oddNum, *evenNum, *containsOne,
+	// Task 12 - Tests
+	cout << "\nTASK 12 TEST: " << endl << endl;
+	vector<DFA<char>> task12test = {*binaryString, *onlyOnes, *onlyZeros, *alternatingBinary, *evenLength, *oddNum, *evenNum, *containsOne,
 		*containsZero, *contains0011, *startsOneEndsZero, *threeConsecutiveZeros };
 
 	for (int i = 0; i < 12; i++) {
 
-		auto str = DFAtoString(task10test[i], v).value_or(list<int>(100));
+		auto str = DFAtoString(task12test[i], v).value_or(list<int>(100));
 
 		cout << DFAnames[i] << ": ";
 		for (auto s : str) {
@@ -494,17 +497,18 @@ int main() {
 
 	}
 
-	auto intersectTest = unionDFA(*threeConsecutiveZeros, *containsZero);
+	// Task 14 - Union Tests
+	cout << "\nUNION TEST:\n\n";
 
-	
-	cout << "\nunion test: ";
-	auto istr = DFAtoString(intersectTest, v).value_or(list<int>(100));
+	unionTests(*binaryString, *onlyOnes, *onlyZeros, *alternatingBinary, *evenLength, *oddNum, *evenNum, *containsOne,
+		*containsZero, *contains0011, *startsOneEndsZero, *threeConsecutiveZeros, v);
 
-	for (auto s : istr) {
-		cout << s;
-	}
+	cout << "\nINTERSECT TEST:\n\n";
 
-	cout << endl;
+	intersectTests(*binaryString, *onlyOnes, *onlyZeros, *alternatingBinary, *evenLength, *oddNum, *evenNum, *containsOne,
+		*containsZero, *contains0011, *startsOneEndsZero, *threeConsecutiveZeros, v);
+
+
 
 	if (subset(*onlyOnes, *containsOne, v)) {
 
@@ -517,10 +521,157 @@ int main() {
 	return 0;
 }
 
-// e,
-// 0, 1, 
-// 00, 01, 10, 11,
-// 000, 001, 010, 011, 100, 101, 110, 111,
+void unionTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e, DFA<char> f, DFA<char> g, DFA<char> h, DFA<char> i, DFA<char> j, DFA<char> k, DFA<char> l, vector<int> alphabet) {
+
+	auto test = unionDFA(a, b);
+	auto str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+	test = unionDFA(b, c);
+	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+	test = unionDFA(c, d);
+	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+	test = unionDFA(d, e);
+	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+	test = unionDFA(e, f);
+	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+	test = unionDFA(f, g);
+	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+	test = unionDFA(g, h);
+	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+	test = unionDFA(h, i);
+	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+	test = unionDFA(i, j);
+	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+	test = unionDFA(j, k);
+	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+	test = unionDFA(k, l);
+	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+	test = unionDFA(a, l);
+	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+}
+
+void intersectTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e, DFA<char> f, DFA<char> g, DFA<char> h, DFA<char> i, DFA<char> j, DFA<char> k, DFA<char> l, vector<int> alphabet) {
+
+	auto test = intersectDFA(a, b);
+	auto str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+	test = intersectDFA(b, c);
+	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+	test = intersectDFA(c, d);
+	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+	test = intersectDFA(d, e);
+	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+	test = intersectDFA(e, f);
+	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+	test = intersectDFA(f, g);
+	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+	test = intersectDFA(g, h);
+	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+	test = intersectDFA(h, i);
+	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+	test = intersectDFA(i, j);
+	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+	test = intersectDFA(j, k);
+	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+	test = intersectDFA(k, l);
+	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+	test = intersectDFA(a, l);
+	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+
+	for (auto s : str) cout << s;
+	cout << endl;
+
+}
 
 void genBinString(vector<list<int>>& layer, int n, vector<int> v) {
 
@@ -718,7 +869,7 @@ optional<list<int>> DFAtoString(DFA<State> automata, vector<int> alphabet) {
 
 	};
 
-	cout << "\nreturn nullopt" << endl;
+	//cout << "\nreturn nullopt" << endl;
 
 	return nullopt;
 
@@ -791,6 +942,7 @@ bool subset(DFA<char> a1, DFA<char> a2, vector<int> alphabet) {
 
 		DFAtoString(intersectDFA(compDFA(a2), a1), alphabet).value();
 		return false;
+		
 
 	}
 	catch (bad_optional_access x) {
