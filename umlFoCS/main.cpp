@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <functional>
 #include <optional>
+#include <string>
 
 using namespace std;
 
@@ -26,14 +27,22 @@ public:
 bool acceptsString(DFA<char> d, list<int> l);
 DFA<char> onlyCharDFA(char in);
 void trace(DFA<char> automata, list<int> l);
-optional<list<int>> DFAtoString(DFA<char> automata, vector<int> alphabet);
+
+template<typename State>
+optional<list<int>> DFAtoString(DFA<State> automata, vector<int> alphabet);
+
 DFA<char> compDFA(DFA<char> automata);
 DFA<pair<char, char>> unionDFA(DFA<char> a1, DFA<char> a2);
 DFA<pair<char, char>> intersectDFA(DFA<char> a1, DFA<char> a2);
+bool subset(DFA<char> a1, DFA<char> a2, vector<int> alphabet);
+bool equality(DFA<char> a1, DFA<char> a2);
 
 int main() {
 
 	vector<int> v = { 0, 1 }; // alphabet
+
+	string DFAnames[12] = { "binaryString", "onlyOnes", "onlyZeros", "alternatingBinary", "evenLength", "oddNum", "evenNum", "containsOne",
+		"containsZero", "contains0011", "startsOneEndsZero", "threeConsecutiveZeros" };
 
 	generateNthString(v, 40);
 
@@ -258,7 +267,7 @@ int main() {
 	// binary string
 	for (auto c : accept) {
 		total++;
-		if (!acceptsString(*binaryString, c)) {
+		if (acceptsString(compDFA(*binaryString), c)) {
 			fails++;
 			cout << "binaryString accept fail." << endl;
 		}
@@ -466,18 +475,42 @@ int main() {
 
 	trace(*startsOneEndsZero, traceTest);
 
-	auto str = DFAtoString(*threeConsecutiveZeros, v).value_or(list<int>(7));
+	if (!acceptsString(*threeConsecutiveZeros, { 0, 0, 0 })) { cout << "HUGE ERROR" << endl; };
 
-	for (auto s : str) {
+	// Task 10 Test
+	cout << "\nTask 10 test: " << endl << endl;
+	vector<DFA<char>> task10test = {*binaryString, *onlyOnes, *onlyZeros, *alternatingBinary, *evenLength, *oddNum, *evenNum, *containsOne,
+		*containsZero, *contains0011, *startsOneEndsZero, *threeConsecutiveZeros };
 
-		cout << s;
+	for (int i = 0; i < 12; i++) {
+
+		auto str = DFAtoString(task10test[i], v).value_or(list<int>(100));
+
+		cout << DFAnames[i] << ": ";
+		for (auto s : str) {
+			cout << s;
+		}
+		cout << endl;
 
 	}
 
-	//cout << "\ncomplement test:\n ";
+	auto intersectTest = unionDFA(*threeConsecutiveZeros, *containsZero);
 
-	//auto compTest = compDFA(*threeConsecutiveZeros);
-	//str = DFAtoString(compTest, v).value_or(list<int>(7));
+	
+	cout << "\nunion test: ";
+	auto istr = DFAtoString(intersectTest, v).value_or(list<int>(100));
+
+	for (auto s : istr) {
+		cout << s;
+	}
+
+	cout << endl;
+
+	if (subset(*onlyOnes, *containsOne, v)) {
+
+		cout << "poggers!" << endl;
+
+	}
 
 	cout << endl;
 
@@ -628,12 +661,13 @@ void trace(DFA<char> automata, list<int> l) {
 
 }
 
-optional<list<int>> DFAtoString(DFA<char> automata, vector<int> alphabet) {
+template<typename State>
+optional<list<int>> DFAtoString(DFA<State> automata, vector<int> alphabet) {
 
-	list<int> V;
-	list<pair<char, list<int>>> H;
+	list<State> V;
+	list<pair<State, list<int>>> H;
 	V.push_back(automata.q0);
-	pair<char, list<int>> first(automata.q0, list<int>());
+	pair<State, list<int>> first(automata.q0, list<int>());
 	H.push_back(first);
 
 
@@ -641,10 +675,10 @@ optional<list<int>> DFAtoString(DFA<char> automata, vector<int> alphabet) {
 
 		//cout << "inside h empty loop" << endl;
 
-		pair<char, list<int>> temp(H.front());
+		pair<State, list<int>> temp(H.front());
 		H.pop_front();
 
-		if (automata.F(temp.first)) return temp.second;
+		if (automata.F(temp.first)) return optional<list<int>>(in_place, temp.second);
 
 		//cout << "temp.first: " << temp.first << endl << endl;
 
@@ -674,7 +708,7 @@ optional<list<int>> DFAtoString(DFA<char> automata, vector<int> alphabet) {
 
 				list<int> templist(temp.second);
 				templist.push_back(c);
-				pair<char, list<int>> push(qj, templist);
+				pair<State, list<int>> push(qj, templist);
 				
 				H.push_back(push);
 
@@ -684,7 +718,7 @@ optional<list<int>> DFAtoString(DFA<char> automata, vector<int> alphabet) {
 
 	};
 
-	cout << "return nullopt" << endl;
+	cout << "\nreturn nullopt" << endl;
 
 	return nullopt;
 
@@ -714,7 +748,7 @@ DFA<pair<char, char>> unionDFA(DFA<char> a1, DFA<char> a2) {
 
 	return DFA<pair<char, char>>(
 		[a1_Q, a2_Q](pair<char, char> p) { return a1_Q(p.first) && a2_Q(p.second); },
-		pair<char, char>{a1.q0, a2.q0},
+		pair<char, char>(a1.q0, a2.q0),
 		[a1_D, a2_D](pair<char, char> p, int c) {
 			char d1 = a1_D(p.first, c);
 			char d2 = a2_D(p.second, c);
@@ -739,7 +773,7 @@ DFA<pair<char, char>> intersectDFA(DFA<char> a1, DFA<char> a2) {
 
 	return DFA<pair<char, char>>(
 		[a1_Q, a2_Q](pair<char, char> p) { return a1_Q(p.first) && a2_Q(p.second); },
-		pair<char, char>{a1.q0, a2.q0},
+		pair<char, char>(a1.q0, a2.q0),
 		[a1_D, a2_D](pair<char, char> p, int c) {
 			char d1 = a1_D(p.first, c);
 			char d2 = a2_D(p.second, c);
@@ -751,4 +785,27 @@ DFA<pair<char, char>> intersectDFA(DFA<char> a1, DFA<char> a2) {
 
 }
 
+bool subset(DFA<char> a1, DFA<char> a2, vector<int> alphabet) {
+
+	try {
+
+		DFAtoString(intersectDFA(compDFA(a2), a1), alphabet).value();
+		return false;
+
+	}
+	catch (bad_optional_access x) {
+
+		return true;
+
+	}
+
+
+}
+
+template<typename T>
+bool equality(DFA<T> a1, DFA<T> a2) {
+
+	return subset(a1, a2) && subset(a2, a1);
+
+}
 
