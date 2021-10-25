@@ -966,7 +966,7 @@ DFA<pair<A, B>> unionDFA(DFA<A> a1, DFA<B> a2) {
 
 	return DFA<pair<A, B>>(
 		[a1_Q, a2_Q](pair<A, B> p) { return a1_Q(p.first) && a2_Q(p.second); },
-		pair<char, char>(a1.q0, a2.q0),
+		pair<A, B>(a1.q0, a2.q0),
 		[a1_D, a2_D](pair<A, B> p, int c) {
 			A d1 = a1_D(p.first, c);
 			B d2 = a2_D(p.second, c);
@@ -992,7 +992,7 @@ DFA<pair<A, B>> intersectDFA(DFA<A> a1, DFA<B> a2) {
 
 	return DFA<pair<A, B>>(
 		[a1_Q, a2_Q](pair<A, B> p) { return a1_Q(p.first) && a2_Q(p.second); },
-		pair<char, char>(a1.q0, a2.q0),
+		pair<A, B>(a1.q0, a2.q0),
 		[a1_D, a2_D](pair<A, B> p, int c) {
 			A d1 = a1_D(p.first, c);
 			B d2 = a2_D(p.second, c);
