@@ -24,21 +24,33 @@ public:
 
 };
 
-bool acceptsString(DFA<char> d, list<int> l);
+template<typename T>
+bool acceptsString(DFA<T> d, list<int> l);
+
 DFA<char> onlyCharDFA(char in);
 void trace(DFA<char> automata, list<int> l);
 
 template<typename State>
 optional<list<int>> DFAtoString(DFA<State> automata, vector<int> alphabet);
 
-DFA<char> compDFA(DFA<char> automata);
-DFA<pair<char, char>> unionDFA(DFA<char> a1, DFA<char> a2);
-DFA<pair<char, char>> intersectDFA(DFA<char> a1, DFA<char> a2);
-bool subset(DFA<char> a1, DFA<char> a2, vector<int> alphabet);
-bool equality(DFA<char> a1, DFA<char> a2);
+template<typename T>
+DFA<T> compDFA(DFA<T> automata);
+
+template<typename A, typename B>
+DFA<pair<A, B>> unionDFA(DFA<A> a1, DFA<B> a2);
+
+template<typename A, typename B>
+DFA<pair<A, B>> intersectDFA(DFA<A> a1, DFA<B> a2);
+
+template<typename A, typename B>
+bool subset(DFA<A> a1, DFA<B> a2, vector<int> alphabet);
+
+template<typename A, typename B>
+bool equality(DFA<A> a1, DFA<B> a2);
 
 void unionTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e, DFA<char> f, DFA<char> g, DFA<char> h, DFA<char> i, DFA<char> j, DFA<char> k, DFA<char> l, vector<int> alphabet);
 void intersectTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e, DFA<char> f, DFA<char> g, DFA<char> h, DFA<char> i, DFA<char> j, DFA<char> k, DFA<char> l, vector<int> alphabet);
+void subsetTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e, DFA<char> f, DFA<char> g, DFA<char> h, DFA<char> i, DFA<char> j, DFA<char> k, DFA<char> l, vector<int> alphabet);
 
 int main() {
 
@@ -508,11 +520,20 @@ int main() {
 	intersectTests(*binaryString, *onlyOnes, *onlyZeros, *alternatingBinary, *evenLength, *oddNum, *evenNum, *containsOne,
 		*containsZero, *contains0011, *startsOneEndsZero, *threeConsecutiveZeros, v);
 
+	cout << "\nSUBSET TEST:\n\n";
 
+	subsetTests(*binaryString, *onlyOnes, *onlyZeros, *alternatingBinary, *evenLength, *oddNum, *evenNum, *containsOne,
+		*containsZero, *contains0011, *startsOneEndsZero, *threeConsecutiveZeros, v);
 
-	if (subset(*onlyOnes, *containsOne, v)) {
+	cout << endl;
 
-		cout << "poggers!" << endl;
+	cout << "real test: " << endl;
+	//cout << subset(*threeConsecutiveZeros, *onlyOnes, v);
+	auto DStest = DFAtoString(*evenNum, v).value_or(list<int>(100));
+
+	for (int y : DStest) {
+
+		cout << y;
 
 	}
 
@@ -523,75 +544,92 @@ int main() {
 
 void unionTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e, DFA<char> f, DFA<char> g, DFA<char> h, DFA<char> i, DFA<char> j, DFA<char> k, DFA<char> l, vector<int> alphabet) {
 
+	vector<string> names{ "binaryString", "onlyOnes", "onlyZeros", "alternatingBinary", "evenLength", "oddNum", "evenNum", "containsOne",
+	"containsZero", "contains0011", "startsOneEndsZero", "threeConsecutiveZeros" };
+
+	int count = 0;
+
 	auto test = unionDFA(a, b);
 	auto str = DFAtoString(test, alphabet).value_or(list<int>(100));
 
+	cout << names[count] << " union " << names[++count] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
 	test = unionDFA(b, c);
 	str = DFAtoString(test, alphabet).value_or(list<int>(100));
 
+	cout << names[count] << " union " << names[++count] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
 	test = unionDFA(c, d);
 	str = DFAtoString(test, alphabet).value_or(list<int>(100));
 
+	cout << names[count] << " union " << names[++count] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
 	test = unionDFA(d, e);
 	str = DFAtoString(test, alphabet).value_or(list<int>(100));
 
+	cout << names[count] << " union " << names[++count] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
 	test = unionDFA(e, f);
 	str = DFAtoString(test, alphabet).value_or(list<int>(100));
 
+	cout << names[count] << " union " << names[++count] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
 	test = unionDFA(f, g);
 	str = DFAtoString(test, alphabet).value_or(list<int>(100));
 
+	cout << names[count] << " union " << names[++count] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
 	test = unionDFA(g, h);
 	str = DFAtoString(test, alphabet).value_or(list<int>(100));
 
+	cout << names[count] << " union " << names[++count] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
 	test = unionDFA(h, i);
 	str = DFAtoString(test, alphabet).value_or(list<int>(100));
 
+	cout << names[count] << " union " << names[++count] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
 	test = unionDFA(i, j);
 	str = DFAtoString(test, alphabet).value_or(list<int>(100));
 
+	cout << names[count] << " union " << names[++count] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
 	test = unionDFA(j, k);
 	str = DFAtoString(test, alphabet).value_or(list<int>(100));
 
+	cout << names[count] << " union " << names[++count] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
 	test = unionDFA(k, l);
 	str = DFAtoString(test, alphabet).value_or(list<int>(100));
 
+	cout << names[count] << " union " << names[++count] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
 	test = unionDFA(a, l);
 	str = DFAtoString(test, alphabet).value_or(list<int>(100));
 
+	cout << names[0] << " union " << names[11] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
@@ -599,78 +637,117 @@ void unionTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e,
 
 void intersectTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e, DFA<char> f, DFA<char> g, DFA<char> h, DFA<char> i, DFA<char> j, DFA<char> k, DFA<char> l, vector<int> alphabet) {
 
-	auto test = intersectDFA(a, b);
-	auto str = DFAtoString(test, alphabet).value_or(list<int>(100));
+	vector<string> names{ "binaryString", "onlyOnes", "onlyZeros", "alternatingBinary", "evenLength", "oddNum", "evenNum", "containsOne",
+	"containsZero", "contains0011", "startsOneEndsZero", "threeConsecutiveZeros" };
 
+	int count = 0;
+
+	auto test = intersectDFA(a, b);
+	auto str = DFAtoString(test, alphabet).value_or(list<int>(25));
+
+	cout << names[count] << " intersect " << names[++count] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
 	test = intersectDFA(b, c);
-	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+	str = DFAtoString(test, alphabet).value_or(list<int>(25));
 
+	cout << names[count] << " intersect " << names[++count] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
 	test = intersectDFA(c, d);
-	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+	str = DFAtoString(test, alphabet).value_or(list<int>(25));
 
+	cout << names[count] << " intersect " << names[++count] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
 	test = intersectDFA(d, e);
-	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+	str = DFAtoString(test, alphabet).value_or(list<int>(25));
 
+	cout << names[count] << " intersect " << names[++count] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
 	test = intersectDFA(e, f);
-	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+	str = DFAtoString(test, alphabet).value_or(list<int>(25));
 
+	cout << names[count] << " intersect " << names[++count] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
 	test = intersectDFA(f, g);
-	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+	str = DFAtoString(test, alphabet).value_or(list<int>(25));
 
+	cout << names[count] << " intersect " << names[++count] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
 	test = intersectDFA(g, h);
-	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+	str = DFAtoString(test, alphabet).value_or(list<int>(25));
 
+	cout << names[count] << " intersect " << names[++count] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
 	test = intersectDFA(h, i);
-	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+	str = DFAtoString(test, alphabet).value_or(list<int>(25));
 
+	cout << names[count] << " intersect " << names[++count] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
 	test = intersectDFA(i, j);
-	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+	str = DFAtoString(test, alphabet).value_or(list<int>(25));
 
+	cout << names[count] << " intersect " << names[++count] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
 	test = intersectDFA(j, k);
-	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+	str = DFAtoString(test, alphabet).value_or(list<int>(25));
 
+	cout << names[count] << " intersect " << names[++count] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
 	test = intersectDFA(k, l);
-	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+	str = DFAtoString(test, alphabet).value_or(list<int>(25));
 
+	cout << names[count] << " intersect " << names[++count] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
 	test = intersectDFA(a, l);
-	str = DFAtoString(test, alphabet).value_or(list<int>(100));
+	str = DFAtoString(test, alphabet).value_or(list<int>(25));
 
+	cout << names[0] << " intersect " << names[11] << " -> ";
 	for (auto s : str) cout << s;
 	cout << endl;
 
+}
+
+void subsetTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e, DFA<char> f, DFA<char> g, DFA<char> h, DFA<char> i, DFA<char> j, DFA<char> k, DFA<char> l, vector<int> alphabet) {
+
+	vector<string> names { "binaryString", "onlyOnes", "onlyZeros", "alternatingBinary", "evenLength", "oddNum", "evenNum", "containsOne",
+	"containsZero", "contains0011", "startsOneEndsZero", "threeConsecutiveZeros" };
+
+	int count = 0;
+	auto test = subset(a, b, alphabet);
+	cout << names[count] << " subset " << names[++count] << " -> " << subset(a, b, alphabet) << endl;
+	cout << names[count] << " subset " << names[++count] << " -> " << subset(b, c, alphabet) << endl;
+	cout << names[count] << " subset " << names[++count] << " -> " << subset(c, d, alphabet) << endl;
+	cout << names[count] << " subset " << names[++count] << " -> " << subset(d, e, alphabet) << endl;
+	cout << names[count] << " subset " << names[++count] << " -> " << subset(e, f, alphabet) << endl;
+	cout << names[count] << " subset " << names[++count] << " -> " << subset(f, g, alphabet) << endl;
+	cout << names[count] << " subset " << names[++count] << " -> " << subset(g, h, alphabet) << endl;
+	cout << names[count] << " subset " << names[++count] << " -> " << subset(h, i, alphabet) << endl;
+	cout << names[count] << " subset " << names[++count] << " -> " << subset(i, j, alphabet) << endl;
+	cout << names[count] << " subset " << names[++count] << " -> " << subset(j, k, alphabet) << endl;
+	cout << names[count] << " subset " << names[++count] << " -> " << subset(k, l, alphabet) << endl;
+	cout << names[2] << " subset " << names[11] << " -> " << subset(c, l, alphabet);
+		 
 }
 
 void genBinString(vector<list<int>>& layer, int n, vector<int> v) {
@@ -781,7 +858,8 @@ DFA<char> onlyCharDFA(char in) {
 
 }
 
-bool acceptsString(DFA<char> automata, list<int> l) {
+template <typename T>
+bool acceptsString(DFA<T> automata, list<int> l) {
 
 	char qi = automata.q0;
 	for (int curr : l) {
@@ -824,50 +902,37 @@ optional<list<int>> DFAtoString(DFA<State> automata, vector<int> alphabet) {
 
 	while (!H.empty()) {
 
-		//cout << "inside h empty loop" << endl;
-
 		pair<State, list<int>> temp(H.front());
 		H.pop_front();
 
 		if (automata.F(temp.first)) return optional<list<int>>(in_place, temp.second);
 
-		//cout << "temp.first: " << temp.first << endl << endl;
-
-
 		for (auto c : alphabet) {
 
-			//cout << "temp.first: " << temp.first << " -> ";
-			//cout << temp.first << "," << c << " -> ";
-
 			auto qj = automata.D(temp.first, c);
-
-			//cout << "qj: " << qj;;
-			//cout << " c: " << c << endl << endl;
-			//cout << qj << "," << c << endl << endl;
 			
-
 			bool inV = false;
 			for (auto g : V) {
-
+						   
 				if (g == qj) inV = true;
-
-			}
-
-			if (!inV) {
-
+						   
+			}			   
+						   
+			if (!inV) {	   
+						   
 				V.push_back(qj);
-
+						   
 				list<int> templist(temp.second);
 				templist.push_back(c);
 				pair<State, list<int>> push(qj, templist);
-				
+						   
 				H.push_back(push);
-
-			}
-
-		}
-
-	};
+						   
+			}			   
+						   
+		}				   
+						   
+	};					   
 
 	//cout << "\nreturn nullopt" << endl;
 
@@ -875,74 +940,77 @@ optional<list<int>> DFAtoString(DFA<State> automata, vector<int> alphabet) {
 
 }
 
-DFA<char> compDFA(DFA<char> automata) {
+template <typename T>
+DFA<T> compDFA(DFA<T> automata) {
 
 	auto Q = automata.Q;
 	auto q0 = automata.q0;
 	auto D = automata.D;
 	auto F = [=](char qi) { return !(automata.F); };
 
-	return DFA<char>(Q, q0, D, F);
+	return DFA<T>(Q, q0, D, F);
 
 }
 
-DFA<pair<char, char>> unionDFA(DFA<char> a1, DFA<char> a2) {
+template <typename A, typename B>
+DFA<pair<A, B>> unionDFA(DFA<A> a1, DFA<B> a2) {
 
-	function<bool(char)> a1_Q = a1.Q;
-	function<bool(char)> a2_Q = a2.Q;
+	function<bool(A)> a1_Q = a1.Q;
+	function<bool(B)> a2_Q = a2.Q;
 
-	function<char(char, int)> a1_D = a1.D;
-	function<char(char, int)> a2_D = a2.D;
+	function<A(A, int)> a1_D = a1.D;
+	function<B(B, int)> a2_D = a2.D;
 
-	function<bool(char)> a1_F = a1.F;
-	function<bool(char)> a2_F = a2.F;
+	function<bool(A)> a1_F = a1.F;
+	function<bool(B)> a2_F = a2.F;
 
-	return DFA<pair<char, char>>(
-		[a1_Q, a2_Q](pair<char, char> p) { return a1_Q(p.first) && a2_Q(p.second); },
+	return DFA<pair<A, B>>(
+		[a1_Q, a2_Q](pair<A, B> p) { return a1_Q(p.first) && a2_Q(p.second); },
 		pair<char, char>(a1.q0, a2.q0),
-		[a1_D, a2_D](pair<char, char> p, int c) {
-			char d1 = a1_D(p.first, c);
-			char d2 = a2_D(p.second, c);
+		[a1_D, a2_D](pair<A, B> p, int c) {
+			A d1 = a1_D(p.first, c);
+			B d2 = a2_D(p.second, c);
 		
-			return pair<char, char>(d1, d2);
+			return pair<A, B>(d1, d2);
 		},
-		[a1_F, a2_F](pair<char, char> p) { return a1_F(p.first) || a2_F(p.first); }
+		[a1_F, a2_F](pair<A, B> p) { return a1_F(p.first) || a2_F(p.first); }
 		);
 
 }
 
-DFA<pair<char, char>> intersectDFA(DFA<char> a1, DFA<char> a2) {
+template <typename A, typename B>
+DFA<pair<A, B>> intersectDFA(DFA<A> a1, DFA<B> a2) {
 
-	function<bool(char)> a1_Q = a1.Q;
-	function<bool(char)> a2_Q = a2.Q;
+	function<bool(A)> a1_Q = a1.Q;
+	function<bool(B)> a2_Q = a2.Q;
 
-	function<char(char, int)> a1_D = a1.D;
-	function<char(char, int)> a2_D = a2.D;
+	function<A(A, int)> a1_D = a1.D;
+	function<B(B, int)> a2_D = a2.D;
 
-	function<bool(char)> a1_F = a1.F;
-	function<bool(char)> a2_F = a2.F;
+	function<bool(A)> a1_F = a1.F;
+	function<bool(B)> a2_F = a2.F;
 
-	return DFA<pair<char, char>>(
-		[a1_Q, a2_Q](pair<char, char> p) { return a1_Q(p.first) && a2_Q(p.second); },
+	return DFA<pair<A, B>>(
+		[a1_Q, a2_Q](pair<A, B> p) { return a1_Q(p.first) && a2_Q(p.second); },
 		pair<char, char>(a1.q0, a2.q0),
-		[a1_D, a2_D](pair<char, char> p, int c) {
-			char d1 = a1_D(p.first, c);
-			char d2 = a2_D(p.second, c);
+		[a1_D, a2_D](pair<A, B> p, int c) {
+			A d1 = a1_D(p.first, c);
+			B d2 = a2_D(p.second, c);
 
-			return pair<char, char>(d1, d2);
+			return pair<A, B>(d1, d2);
 		},
-		[a1_F, a2_F](pair<char, char> p) { return a1_F(p.first) && a2_F(p.first); }
+		[a1_F, a2_F](pair<A, B> p) { return a1_F(p.first) && a2_F(p.first); }
 		);
 
 }
 
-bool subset(DFA<char> a1, DFA<char> a2, vector<int> alphabet) {
+template <typename A, typename B>
+bool subset(DFA<A> a1, DFA<B> a2, vector<int> alphabet) {
 
 	try {
 
 		DFAtoString(intersectDFA(compDFA(a2), a1), alphabet).value();
 		return false;
-		
 
 	}
 	catch (bad_optional_access x) {
@@ -954,8 +1022,8 @@ bool subset(DFA<char> a1, DFA<char> a2, vector<int> alphabet) {
 
 }
 
-template<typename T>
-bool equality(DFA<T> a1, DFA<T> a2) {
+template<typename A, typename B>
+bool equality(DFA<A> a1, DFA<B> a2) {
 
 	return subset(a1, a2) && subset(a2, a1);
 
