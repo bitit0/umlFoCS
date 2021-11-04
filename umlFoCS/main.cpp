@@ -46,13 +46,13 @@ template<typename A, typename B>
 bool subset(DFA<A> a1, DFA<B> a2, vector<int> alphabet);
 
 template<typename A, typename B>
-bool equality(DFA<A> a1, DFA<B> a2);
+bool equality(DFA<A> a1, DFA<B> a2, vector<int> alphabet);
 
 void compTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e, DFA<char> f, DFA<char> g, DFA<char> h, DFA<char> i, DFA<char> j, DFA<char> k, DFA<char> l, vector<int> alphabet);
 void unionTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e, DFA<char> f, DFA<char> g, DFA<char> h, DFA<char> i, DFA<char> j, DFA<char> k, DFA<char> l, vector<int> alphabet);
 void intersectTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e, DFA<char> f, DFA<char> g, DFA<char> h, DFA<char> i, DFA<char> j, DFA<char> k, DFA<char> l, vector<int> alphabet);
 void subsetTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e, DFA<char> f, DFA<char> g, DFA<char> h, DFA<char> i, DFA<char> j, DFA<char> k, DFA<char> l, vector<int> alphabet);
-
+void equalityTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e, DFA<char> f, DFA<char> g, DFA<char> h, DFA<char> i, DFA<char> j, DFA<char> k, DFA<char> l, vector<int> alphabet);
 
 int main() {
 
@@ -527,6 +527,11 @@ int main() {
 	subsetTests(*binaryString, *onlyOnes, *onlyZeros, *alternatingBinary, *evenLength, *oddNum, *evenNum, *containsOne,
 		*containsZero, *contains0011, *startsOneEndsZero, *threeConsecutiveZeros, v);
 
+	cout << "\nEQUALITY TEST:\n\n";
+
+	equalityTests(*binaryString, *onlyOnes, *onlyZeros, *alternatingBinary, *evenLength, *oddNum, *evenNum, *containsOne,
+		*containsZero, *contains0011, *startsOneEndsZero, *threeConsecutiveZeros, v);
+
 	//compTests(*binaryString, *onlyOnes, *onlyZeros, *alternatingBinary, *evenLength, *oddNum, *evenNum, *containsOne,
 		//*containsZero, *contains0011, *startsOneEndsZero, *threeConsecutiveZeros, v);
 
@@ -763,6 +768,28 @@ void subsetTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e
 	cout << names[2] << " subset " << names[8] << " -> " << subset(c, i, alphabet);
 		 
 }
+
+void equalityTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e, DFA<char> f, DFA<char> g, DFA<char> h, DFA<char> i, DFA<char> j, DFA<char> k, DFA<char> l, vector<int> alphabet) {
+
+	vector<string> names{ "binaryString", "onlyOnes", "onlyZeros", "alternatingBinary", "evenLength", "oddNum", "evenNum", "containsOne",
+	"containsZero", "contains0011", "startsOneEndsZero", "threeConsecutiveZeros" };
+
+	int count = 0;
+	cout << names[count] << " equality " << names[++count] << " -> " << equality(a, b, alphabet) << endl;
+	cout << names[count] << " equality " << names[++count] << " -> " << equality(b, c, alphabet) << endl;
+	cout << names[count] << " equality " << names[++count] << " -> " << equality(c, d, alphabet) << endl;
+	cout << names[count] << " equality " << names[++count] << " -> " << equality(d, e, alphabet) << endl;
+	cout << names[count] << " equality " << names[++count] << " -> " << equality(e, f, alphabet) << endl;
+	cout << names[count] << " equality " << names[++count] << " -> " << equality(f, g, alphabet) << endl;
+	cout << names[count] << " equality " << names[++count] << " -> " << equality(g, h, alphabet) << endl;
+	cout << names[count] << " equality " << names[++count] << " -> " << equality(h, i, alphabet) << endl;
+	cout << names[count] << " equality " << names[++count] << " -> " << equality(i, j, alphabet) << endl;
+	cout << names[count] << " equality " << names[++count] << " -> " << equality(j, k, alphabet) << endl;
+	cout << names[count] << " equality " << names[++count] << " -> " << equality(k, l, alphabet) << endl;
+	cout << names[1] << " subset " << names[1] << " -> " << subset(b, b, alphabet);
+
+}
+
 
 void genBinString(vector<list<int>>& layer, int n, vector<int> v) {
 
@@ -1042,9 +1069,9 @@ bool subset(DFA<A> a1, DFA<B> a2, vector<int> alphabet) {
 }
 
 template<typename A, typename B>
-bool equality(DFA<A> a1, DFA<B> a2) {
+bool equality(DFA<A> a1, DFA<B> a2, vector<int> alphabet) {
 
-	return subset(a1, a2) && subset(a2, a1);
+	return subset(a1, a2, alphabet) && subset(a2, a1, alphabet);
 
 }
 
