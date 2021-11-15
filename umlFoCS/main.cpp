@@ -72,7 +72,7 @@ int main() {
 	string DFAnames[12] = { "binaryString", "onlyOnes", "onlyZeros", "alternatingBinary", "evenLength", "oddNum", "evenNum", "containsOne",
 		"containsZero", "contains0011", "startsOneEndsZero", "threeConsecutiveZeros" };
 
-	generateNthString(v, 40);
+	//generateNthString(v, 40);
 
 	// DFAs
 	DFA<char>* onlyEmptyString = new DFA<char>(
@@ -499,15 +499,15 @@ int main() {
 		}
 	}
 
-	list<int> traceTest = { 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0 };
+	/*list<int> traceTest = { 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0 };
 
-	trace(*startsOneEndsZero, traceTest);
+	trace(*startsOneEndsZero, traceTest);*/
 
 	if (!acceptsString(*threeConsecutiveZeros, { 0, 0, 0 })) { cout << "HUGE ERROR" << endl; };
 
 	// Task 12 - Tests
-	cout << "\nTASK 12 TEST: " << endl << endl;
-	vector<DFA<char>> task12test = {*binaryString, *onlyOnes, *onlyZeros, *alternatingBinary, *evenLength, *oddNum, *evenNum, *containsOne,
+	/*cout << "\nTASK 12 TEST: " << endl << endl;
+	vector<DFA<char>> task12test = { *binaryString, *onlyOnes, *onlyZeros, *alternatingBinary, *evenLength, *oddNum, *evenNum, *containsOne,
 		*containsZero, *contains0011, *startsOneEndsZero, *threeConsecutiveZeros };
 
 	for (int i = 0; i < 12; i++) {
@@ -520,10 +520,10 @@ int main() {
 		}
 		cout << endl;
 
-	}
+	}*/
 
 	// Union, Intersect, Subset, Equality Test
-	cout << "\nUNION TEST:\n\n";
+	/*cout << "\nUNION TEST:\n\n";
 
 	unionTests(*binaryString, *onlyOnes, *onlyZeros, *alternatingBinary, *evenLength, *oddNum, *evenNum, *containsOne,
 		*containsZero, *contains0011, *startsOneEndsZero, *threeConsecutiveZeros, v);
@@ -544,7 +544,7 @@ int main() {
 		*containsZero, *contains0011, *startsOneEndsZero, *threeConsecutiveZeros, v);
 
 	cout << endl;
-	cout << endl;
+	cout << endl;*/
 
 	// NFAs
 
@@ -565,7 +565,7 @@ int main() {
 			if (qi == 'd') { return vector<char>{}; }
 		},
 		[](char qi) { return vector<char>{}; },
-		[](char qi) { return qi == 'd'; }
+			[](char qi) { return qi == 'd'; }
 		);
 
 	NFA<char>* thirdFromEndIsZero = new NFA<char>(
@@ -624,7 +624,25 @@ int main() {
 			if (qi == 'c') return vector<char>{};
 		},
 		[](char qi) { return vector<char>{}; },
-			[](char qi) { return qi == 'd'; }
+		[](char qi) { return qi == 'c'; }
+		);
+
+	NFA<char>* endsIn10 = new NFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b') || (x == 'c'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				if (c == 0) return vector<char>{'a'};
+				if (c == 1) return vector<char>{'a', 'b'};
+			}
+			if (qi == 'b') {
+				if (c == 0) return vector<char>{'c'};
+			}
+			if (qi == 'c') return vector<char>{};
+		},
+		[](char qi) { return vector<char>{}; },
+			[](char qi) { return qi == 'c'; }
+
 		);
 
 	NFA<char>* secondFromEndIsOne = new NFA<char>(
@@ -638,10 +656,27 @@ int main() {
 			if (qi == 'b') {
 				if (c == 0 || c == 1) return vector<char>{'c'};
 			}
-			if (qi == 'c') { return vector<char>{'d'}; }
+			if (qi == 'c') { return vector<char>{}; }
 		},
 		[](char qi) { return vector<char>{}; },
-			[](char qi) { return qi == 'd'; }
+		[](char qi) { return qi == 'c'; }
+		);
+
+	NFA<char>* secondFromEndIsZero = new NFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b') || (x == 'c'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				if (c == 0) return vector<char>{'a', 'b'};
+				if (c == 1) return vector<char>{'a'};
+			}
+			if (qi == 'b') {
+				if (c == 0 || c == 1) return vector<char>{'c'};
+			}
+			if (qi == 'c') { return vector<char>{}; }
+		},
+		[](char qi) { return vector<char>{}; },
+			[](char qi) { return qi == 'c'; }
 		);
 
 	NFA<char>* alphabetIs10and101 = new NFA<char>(
@@ -661,9 +696,93 @@ int main() {
 			return vector<char>{'f'};
 		},
 		[](char qi) { return vector<char>{}; },
-			[](char qi) { return qi == 'a'; }
+		[](char qi) { return qi == 'a'; }
 		);
 
+	NFA<char>* substring00or11 = new NFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b') || (x == 'c') || (x == 'd'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				if (c == 0) return vector<char>{'a', 'b'};
+				if (c == 1) return vector<char>{'a', 'c'};
+			}
+			if (qi == 'b') {
+				if (c == 0) return vector<char>{'d'};
+			}
+			if (qi == 'c') {
+				if (c == 1) return vector<char>{'d'};
+			}
+			if (qi == 'd') {
+				return vector<char>{'d'};
+			}
+		},
+		[](char qi) { return vector<char>{}; },
+		[](char qi) { return qi == 'd'; }
+		);
+
+	NFA<char>* endsIn101 = new NFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b') || (x == 'c') || (x == 'd'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				if (c == 0) return vector<char>{'a'};
+				if (c == 1) return vector<char>{'a', 'b'};
+			}
+			if (qi == 'b') {
+				if (c == 0) return vector<char>{'c'};
+			}
+			if (qi == 'c') {
+				if (c == 1) return vector<char>{'d'};
+			}
+			if (qi == 'd') {
+				return vector<char>{'d'};
+			}
+		},
+		[](char qi) { return vector<char>{}; },
+			[](char qi) { return qi == 'd'; }
+		);
+
+	NFA<char>* lastCharIsZeroOrContainsOnlyOnes = new NFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b') || (x == 'c') || (x == 'd'); },
+		'b',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				if (c == 1) return vector<char>{'a'};
+			}
+			if (qi == 'c') {
+				if (c == 0) return vector<char>{'c', 'd'};
+				if (c == 1) return vector<char>{'c'};
+			}
+		},
+		[](char qi) {
+			if (qi == 'b') return vector<char>{'a', 'c'};
+		},
+		[](char qi) { return (qi == 'a') || (qi == 'd'); }
+		);
+
+	NFA<char>* oneAtThirdOrSecondFromEnd = new NFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b') || (x == 'c') || (x == 'd'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				if (c == 0) return vector<char>{'a'};
+				if (c == 1) return vector<char>{'a', 'b'};
+			}
+			if (qi == 'b') {
+				if (c == 0 || c == 1) return vector<char>{'c'};
+			}
+			if (qi == 'c') {
+				if (c == 0 || c == 1) return vector<char>{'d'};
+			}
+			if (qi == 'd') { return vector<char>{}; }
+		}
+		[](char qi) {
+			if (qi == 'b') return vector<char>{'c'};
+		},
+		[](char qi) { return (qi == 'd'); 
+		);
+	// 11 done
 
 	return 0;
 }
