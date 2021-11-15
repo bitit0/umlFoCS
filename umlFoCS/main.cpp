@@ -27,10 +27,11 @@ public:
 template<typename State>
 class NFA {
 public:
-	NFA(function<bool(State)> Qp, State q0p, function<State(State, int)> Dp, function<bool(State)> Fp) : Q(Qp), q0(q0p), D(Dp), F(Fp) {};
+	NFA(function<bool(State)> Qp, State q0p, function<vector<State>(State, int)> Dp, function<vector<State>(State)> epTp, function<bool(State)> Fp) : Q(Qp), q0(q0p), D(Dp), F(Fp) {};
 	function<bool(State)> Q; // Set of states 
 	State q0; // Start state
-	function<State(State, int)> D; // Transition
+	function<vector<State>(State, int)> D; // Transition
+	function<vector<State>(State)> epsilonTransition;
 	function<bool(State)> F; // Set of states
 };
 
@@ -521,7 +522,7 @@ int main() {
 
 	}
 
-	// Task 14 - Union Tests
+	// Union, Intersect, Subset, Equality Test
 	cout << "\nUNION TEST:\n\n";
 
 	unionTests(*binaryString, *onlyOnes, *onlyZeros, *alternatingBinary, *evenLength, *oddNum, *evenNum, *containsOne,
@@ -542,22 +543,127 @@ int main() {
 	equalityTests(*binaryString, *onlyOnes, *onlyZeros, *alternatingBinary, *evenLength, *oddNum, *evenNum, *containsOne,
 		*containsZero, *contains0011, *startsOneEndsZero, *threeConsecutiveZeros, v);
 
-	//compTests(*binaryString, *onlyOnes, *onlyZeros, *alternatingBinary, *evenLength, *oddNum, *evenNum, *containsOne,
-		//*containsZero, *contains0011, *startsOneEndsZero, *threeConsecutiveZeros, v);
-
+	cout << endl;
 	cout << endl;
 
-	//cout << "real test: " << endl;
-	////cout << subset(*threeConsecutiveZeros, *onlyOnes, v);
-	//auto DStest = DFAtoString(*evenNum, v).value_or(list<int>(100));
+	// NFAs
 
-	//for (int y : DStest) {
+	NFA<char>* thirdFromEndIsOne = new NFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b') || (x == 'c') || (x == 'd'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				if (c == 0) return vector<char>{'a'};
+				if (c == 1) return vector<char>{'a', 'b'};
+			}
+			if (qi == 'b') {
+				if (c == 0 || c == 1) return vector<char>{'c'};
+			}
+			if (qi == 'c') {
+				if (c == 0 || c == 1) return vector<char>{'d'};
+			}
+			if (qi == 'd') { return vector<char>{}; }
+		},
+		[](char qi) { return vector<char>{}; },
+		[](char qi) { return qi == 'd'; }
+		);
 
-	//	cout << y;
+	NFA<char>* thirdFromEndIsZero = new NFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b') || (x == 'c') || (x == 'd'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				if (c == 0) return vector<char>{'a', 'b'};
+				if (c == 1) return vector<char>{'a'};
+			}
+			if (qi == 'b') {
+				if (c == 0 || c == 1) return vector<char>{'c'};
+			}
+			if (qi == 'c') {
+				if (c == 0 || c == 1) return vector<char>{'d'};
+			}
+			if (qi == 'd') { return vector<char>{}; }
+		},
+		[](char qi) { return vector<char>{}; },
+			[](char qi) { return qi == 'd'; }
+		);
 
-	//}
+	NFA<char>* substring101or11 = new NFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b') || (x == 'c') || (x == 'd'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				if (c == 0) return vector<char>{'a'};
+				if (c == 0 || c == 1) return vector<char>{'a', 'b'};
+			}
+			if (qi == 'b') {
+				if (c == 0) return vector<char>{'c'};
+			}
+			if (qi == 'c') {
+				if (c == 1) return vector<char>{'d'};
+			}
+			if (qi == 'd') { return vector<char>{}; }
+		},
+		[](char qi) {
+			if (qi == 'b') return vector<char>{'c'};
+		},
+		[](char qi) { return qi == 'd'; }
+		);
 
-	cout << endl;
+	NFA<char>* endsIn01 = new NFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b') || (x == 'c'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				if (c == 0) return vector<char>{'a', 'b'};
+				if (c == 1) return vector<char>{'a'};
+			}
+			if (qi == 'b') {
+				if (c == 1) return vector<char>{'c'};
+			}
+			if (qi == 'c') return vector<char>{};
+		},
+		[](char qi) { return vector<char>{}; },
+			[](char qi) { return qi == 'd'; }
+		);
+
+	NFA<char>* secondFromEndIsOne = new NFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b') || (x == 'c'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				if (c == 0) return vector<char>{'a'};
+				if (c == 1) return vector<char>{'a', 'b'};
+			}
+			if (qi == 'b') {
+				if (c == 0 || c == 1) return vector<char>{'c'};
+			}
+			if (qi == 'c') { return vector<char>{'d'}; }
+		},
+		[](char qi) { return vector<char>{}; },
+			[](char qi) { return qi == 'd'; }
+		);
+
+	NFA<char>* alphabetIs10and101 = new NFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b') || (x == 'c') || (x == 'f'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				if (c == 1) return vector<char>{'b'};
+				return vector<char>{'f'};
+			}
+			if (qi == 'b') {
+				if (c == 0) return vector<char>{'a', 'c'};
+			}
+			if (qi == 'c') {
+				if (c == 1) return vector<char>{'a'};
+			}
+			return vector<char>{'f'};
+		},
+		[](char qi) { return vector<char>{}; },
+			[](char qi) { return qi == 'a'; }
+		);
+
 
 	return 0;
 }
@@ -1090,12 +1196,16 @@ NFA<T> convert(DFA<T> dfaToConvert) {
 
 	auto newDelta = [=](T qi, int c) {
 
-		if (c == -1) return vector<T>{};
 		return vector<T>{dfaToConvert.D(qi, c)};
 
 	};
 
-	return NFA<T>(dfaToConvert.Q, dfaToConvert.q0, newDelta, dfaToConvert.F);
+	auto epT = [=](T qi) {
 
+		return vector<T>{};
+
+	};
+
+	return NFA<T>(dfaToConvert.Q, dfaToConvert.q0, dfaToConvert.D, epT, dfaToConvert.F);
 
 }
