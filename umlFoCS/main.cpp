@@ -24,6 +24,16 @@ public:
 
 };
 
+template<typename State>
+class NFA {
+public:
+	DFA(function<bool(State)> Qp, State q0p, function<State(State, int)> Dp, function<bool(State)> Fp) : Q(Qp), q0(q0p), D(Dp), F(Fp) {};
+	function<bool(State)> Q; // Set of states 
+	State q0; // Start state
+	function<State(State, int)> D; // Transition
+	function<bool(State)> F; // Set of states
+};
+
 template<typename T>
 bool acceptsString(DFA<T> d, list<int> l);
 
