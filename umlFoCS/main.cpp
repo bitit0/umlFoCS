@@ -27,7 +27,7 @@ public:
 template<typename State>
 class NFA {
 public:
-	DFA(function<bool(State)> Qp, State q0p, function<State(State, int)> Dp, function<bool(State)> Fp) : Q(Qp), q0(q0p), D(Dp), F(Fp) {};
+	NFA(function<bool(State)> Qp, State q0p, function<State(State, int)> Dp, function<bool(State)> Fp) : Q(Qp), q0(q0p), D(Dp), F(Fp) {};
 	function<bool(State)> Q; // Set of states 
 	State q0; // Start state
 	function<State(State, int)> D; // Transition
@@ -1085,3 +1085,17 @@ bool equality(DFA<A> a1, DFA<B> a2, vector<int> alphabet) {
 
 }
 
+template<typename T>
+NFA<T> convert(DFA<T> dfaToConvert) {
+
+	auto newDelta = [=](T qi, int c) {
+
+		if (c == -1) return vector<T>{};
+		return vector<T>{dfaToConvert.D(qi, c)};
+
+	};
+
+	return NFA<T>(dfaToConvert.Q, dfaToConvert.q0, newDelta, dfaToConvert.F);
+
+
+}
