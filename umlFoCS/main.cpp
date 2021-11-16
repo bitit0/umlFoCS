@@ -35,6 +35,20 @@ public:
 	function<bool(State)> F; // Set of states
 };
 
+template<typename State>
+class traceTree {
+public:
+
+	traceTree();
+
+	vector<traceTree<State>> branches; // branch state (tt ...)
+	bool accepted; // accept or reject
+
+	State state; // Node
+	int c;		 //
+
+};
+
 template<typename T>
 bool acceptsString(DFA<T> d, list<int> l);
 
