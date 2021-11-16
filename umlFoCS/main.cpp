@@ -1381,3 +1381,48 @@ NFA<T> convert(DFA<T> dfaToConvert) {
 	return NFA<T>(dfaToConvert.Q, dfaToConvert.q0, dfaToConvert.D, epT, dfaToConvert.F);
 
 }
+
+// A configuration follows the following format: { {qi}, {w} }
+// For example: { {'a'}, {1, 0, 1, 0, 0} }
+// Then trace would follow this: { { {qi}, {w} }, { {qj}, {wprime} }}
+
+template<typename T>
+bool oracle(NFA<T> n, vector<int> w, vector<pair<T, list<int>>> trace, bool accepted) {
+
+	return accepted == oracleHelper(n, n.q0, w, trace);
+
+}
+
+template<typename T>
+bool oracleHelper(NFA<T> n, T qi, vector<int> w, vector<pair<T, list<int>>> trace) {
+
+	if (trace.empty() && w.empty()) return true;
+
+	if (!trace.empty() && !w.empty()) {
+
+		// Get qj and w-prime
+
+		if (w == trace[0].second) { // epsilon transition
+
+			auto prime = n.epsilonTransition(qi);
+			bool validTransition = prime.find(prime.begin(), prime.end(), trace[1].first);
+
+			if (validTransition) return validTransition && oracleHelper(n, prime.first, trace.erase(trace.begin()));
+
+		} else if (list<int>(w.at(1), w.end()) == trace[1].second) {
+
+			T popped = w.front();
+			auto prime = n.D(qi, popped);
+			bool validTransition = prime.find(prime.begin(), prime.end(), trace[1].first);
+
+			if (validTransition) return validTransition && oracleHelper(n, prime.first, trace.erase(trace.begin()));
+
+		} else {
+			
+			return false;
+
+		}
+
+	}
+
+}
