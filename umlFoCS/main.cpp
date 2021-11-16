@@ -547,7 +547,6 @@ int main() {
 	cout << endl;*/
 
 	// NFAs
-
 	NFA<char>* thirdFromEndIsOne = new NFA<char>(
 		[](char x) { return (x == 'a') || (x == 'b') || (x == 'c') || (x == 'd'); },
 		'a',
@@ -775,14 +774,68 @@ int main() {
 			if (qi == 'c') {
 				if (c == 0 || c == 1) return vector<char>{'d'};
 			}
-			if (qi == 'd') { return vector<char>{}; }
-		}
+			if (qi == 'd') { return vector<char>{}; };
+		},
 		[](char qi) {
 			if (qi == 'b') return vector<char>{'c'};
 		},
-		[](char qi) { return (qi == 'd'); 
+			[](char qi) { return (qi == 'd'); }
 		);
-	// 11 done
+
+	vector<NFA<char>*> listOfNFAs = { thirdFromEndIsOne, thirdFromEndIsZero, substring101or11, endsIn01, endsIn10, secondFromEndIsOne, 
+		secondFromEndIsZero, alphabetIs10and101, substring00or11, endsIn101, lastCharIsZeroOrContainsOnlyOnes, oneAtThirdOrSecondFromEnd };
+
+	vector<list<int>> acceptedTraces = {};
+	vector<list<int>> rejectedTraces = {};
+
+	// Traces for thirdFromEndIsOne
+	acceptedTraces = { {1,0,0}, {0,1,0,0}, {1,1,0,0}, {0,0,1,0,0}, {1,0,1,0,0}, {1,1,1,0,0} };
+	rejectedTraces = { {1,0,0,0,0}, {0,0,0}, {0,0,0,0}, {0,1,0,1,0,1,0}, {0,1,0}, {1} };
+
+	// Traces for thirdFromEndIsZero
+	acceptedTraces = { {0,0,0}, {0,0,0,0}, {1,0,0,0}, {0,0,0,0,0}, {1,0,0,0,0}, {1,1,0,0,0} };
+	rejectedTraces = { {1,0,1,0,0}, {1,0,0}, {0,1,0,0}, {0,1,0,1,1,1,0}, {1,1,0}, {1,1,1,1} };
+
+	// Traces for substring1,0,1,or1,1,
+	acceptedTraces = { {1,0,1}, {1,1,1,1,0,0}, {1,1,0,0}, {1,0,1,0,1}, {0,0,1,0,1}, {1,1,1,0,1} };
+	rejectedTraces = { {1,0}, {0,0,0}, {0,1,0,0}, {1,0,0,0}, {0,0,0,1,0}, {0,0,1} };
+
+	// Traces for endsIn0,1,
+	acceptedTraces = { {1,0,1}, {1,1,1,1,0,1}, {1,1,0,1}, {1,0,1,0,1}, {0,0,1,0,1}, {1,1,1,0,1} };
+	rejectedTraces = { {1,0}, {0,0,0}, {0,1,0,0}, {1,0,0,0}, {0,0,0,1,0}, {1,0,0} };
+	
+	// Traces for endsIn1,0,
+	acceptedTraces = { {1,0,1,0}, {1,1,1,1,0,1,0}, {1,1,0,1,0}, {1,0,1,0,1,0}, {0,0,1,0,1,0}, {1,1,1,0,1,0} };
+	rejectedTraces = { {1,0,0}, {0,0,0}, {0,1,0,0}, {1,0,0,0}, {0,0,0,1,0,0}, {1,0,0} };
+	
+	// Traces for secondFromEndIsOne
+	acceptedTraces = { {1,0,1,0}, {1,1,1,1,0,1,0}, {1,1,0,1,1}, {1,0,1,0,1,0}, {0,0,1,0,1,0}, {1,1,1,0,1,0} };
+	rejectedTraces = { {1,0,0}, {0,0,0}, {0,1,0,0}, {1,0,0,0}, {0,0,0,1,0,0}, {1,0,0} };
+
+	// Traces for secondFromEndIsZero
+	acceptedTraces = { {1,0,0,0}, {1,1,1,1,0,0,0}, {1,1,0,0,1}, {1,0,1,0,0,0}, {0,0,1,0,0,0}, {1,1,1,0,0,0} };
+	rejectedTraces = { {1,1,0}, {0,1,0}, {0,1,1,0}, {1,0,1,0}, {0,0,0,1,1,0}, {1,1,0} };
+
+	// Traces for alphabetIs1,0,and1,0,1,
+	acceptedTraces = { {1,0}, {1,0,1,0,1}, {1,0,1,1,0}, {1,0,1}, {1,0,1,1,0}, {1,0,1,0,1,1,0} };
+	rejectedTraces = { {1,1,0}, {0,1,0}, {0,1,1,0}, {1,0,1,0}, {0,0,0,1,1,0}, {1,1,0} };
+
+	// Traces for substring0,0,or1,1,
+	acceptedTraces = { {1,1}, {1,0,1,1,1}, {1,1,1,0}, {1,0,0}, {1,0,1,1,0}, {1,0,1,0,1,1,0} };
+	rejectedTraces = { {1,0,1}, {0,1,0}, {0,1,0,1}, {1,0,1,0,1}, {1,0,1,0,1,0,1,0,1}, {1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0} };
+
+	// Traces for endsIn1,0,1,
+	acceptedTraces = { {1,0,1}, {1,0,1,0,1}, {1,0,1,1,0,1}, {1,0,1,0,1,0,1}, {1,0,1,0,1,0,1,0,1}, {1,1,1,1,1,1,0,1} };
+	rejectedTraces = { {1,1,0}, {0,1,0}, {0,1,1,0}, {1,0,1,0}, {0,0,0,1,1,0}, {1,1,0} };
+
+	// Traces for lastCharIsZeroOrContainsOnlyOnes
+	acceptedTraces = { {1,0,0}, {1,0,1,0,0}, {1,0,1,1,0,0}, {1,0,1,0,1,0,0}, {1,0,1,0,1,0,1,0,0}, {1,1,1,1,1,1,1} };
+	rejectedTraces = { {1,1,1}, {0,1,1}, {0,1,1,1}, {1,0,1,1}, {0,0,0,1,1,1}, {1,1,0,0,1} };
+	
+	// Traces for oneAtThirdOrSecondFromEnd
+	acceptedTraces = { {1,0,0}, {0,1,0,0}, {1,1,0,0}, {0,0,1,0,0}, {1,0,1,0,0}, {1,1,1,0,0} };
+	rejectedTraces = { {1,0,0,0,0}, {0,0,0}, {0,0,0,0}, {0,1,0,1,0,1,0}, {0,1,0}, {1} };
+
 
 	return 0;
 }
