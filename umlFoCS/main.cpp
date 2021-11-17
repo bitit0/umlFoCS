@@ -27,7 +27,7 @@ public:
 template<typename State>
 class NFA {
 public:
-	NFA(function<bool(State)> Qp, State q0p, function<vector<State>(State, int)> Dp, function<vector<State>(State)> epTp, function<bool(State)> Fp) : Q(Qp), q0(q0p), D(Dp), F(Fp) {};
+	NFA(function<bool(State)> Qp, State q0p, function<vector<State>(State, int)> Dp, function<vector<State>(State)> epTp, function<bool(State)> Fp) : Q(Qp), q0(q0p), epsilonTransition(epTp), D(Dp), F(Fp) {};
 	function<bool(State)> Q; // Set of states 
 	State q0; // Start state
 	function<vector<State>(State, int)> D; // Transition
@@ -39,13 +39,12 @@ template<typename State>
 class traceTree {
 public:
 
-	traceTree();
+	traceTree(vector<traceTree<State>> branchPass, bool acceptedPass, State qiPass) : branch(branchPass), accepted(acceptedPass), qi(qiPass) {};
 
-	vector<traceTree<State>> branches; // branch state (tt ...)
-	bool accepted; // accept or reject
+	vector<traceTree<State>> branch; // branch state (tt ...)
+	bool accepted; // yes or no
 
-	State state; // Node
-	int c;		 //
+	State qi; // "State that we started in"
 
 };
 
@@ -78,6 +77,18 @@ void unionTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e,
 void intersectTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e, DFA<char> f, DFA<char> g, DFA<char> h, DFA<char> i, DFA<char> j, DFA<char> k, DFA<char> l, vector<int> alphabet);
 void subsetTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e, DFA<char> f, DFA<char> g, DFA<char> h, DFA<char> i, DFA<char> j, DFA<char> k, DFA<char> l, vector<int> alphabet);
 void equalityTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e, DFA<char> f, DFA<char> g, DFA<char> h, DFA<char> i, DFA<char> j, DFA<char> k, DFA<char> l, vector<int> alphabet);
+
+template<typename T>
+bool oracle(NFA<T> n, vector<int> w, vector<pair<T, list<int>>> trace, bool accepted);
+
+template<typename T>
+bool oracleHelper(NFA<T> n, T qi, vector<int> w, vector<pair<T, list<int>>> trace);
+
+template<typename T>
+traceTree<T> explore(NFA<T> n, vector<int> w);
+
+template<typename T>
+traceTree<T> exploreHelper(NFA<T> n, T qi, vector<int> w);
 
 int main() {
 
@@ -576,8 +587,9 @@ int main() {
 				if (c == 0 || c == 1) return vector<char>{'d'};
 			}
 			if (qi == 'd') { return vector<char>{}; }
+			return vector<char>{};
 		},
-		[](char qi) { return vector<char>{}; },
+		[](char qi) { cout << "in ep" << endl; return vector<char>{}; },
 			[](char qi) { return qi == 'd'; }
 		);
 
@@ -616,9 +628,11 @@ int main() {
 				if (c == 1) return vector<char>{'d'};
 			}
 			if (qi == 'd') { return vector<char>{}; }
+			return vector<char>{};
 		},
 		[](char qi) {
 			if (qi == 'b') return vector<char>{'c'};
+			return vector<char>();
 		},
 		[](char qi) { return qi == 'd'; }
 		);
@@ -798,6 +812,15 @@ int main() {
 
 	vector<string> listOfNFAs = {"thirdFromEndIsOne", "thirdFromEndIsZero", "substring101or11", "endsIn01", "endsIn10", "secondFromEndIsOne", 
 		"secondFromEndIsZero", "alphabetIs10and101", "substring00or11", "endsIn101", "lastCharIsZeroOrContainsOnlyOnes", "oneAtThirdOrSecondFromEnd"};
+
+	/*vector<int> tfeioTest = { 0,0,0,1,0,0 };
+	traceTree<char> printableTraceTree = explore(*thirdFromEndIsOne, tfeioTest);*/
+
+	vector<int> ss00or11 = { 0,1,0,0,1,1 };
+	traceTree<char> printableTraceTree = explore(*substring101or11, ss00or11);
+
+
+
 
 	
 
@@ -1042,7 +1065,6 @@ void equalityTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char>
 	cout << names[1] << " subset " << names[1] << " -> " << subset(b, b, alphabet);
 
 }
-
 
 void genBinString(vector<list<int>>& layer, int n, vector<int> v) {
 
@@ -1390,4 +1412,58 @@ bool oracleHelper(NFA<T> n, T qi, vector<int> w, vector<pair<T, list<int>>> trac
 
 	}
 
+}
+
+template<typename T>
+traceTree<T> explore(NFA<T> n, vector<int> w) {
+
+	return exploreHelper(n, n.q0, w);
+
+}
+
+template<typename T>
+traceTree<T> exploreHelper(NFA<T> n, T qi, vector<int> w) {
+
+	if (w.empty()) {
+
+		if (n.F(qi)) {
+
+			traceTree<T> rettrue( vector<traceTree<T>>{}, true, qi);
+			return rettrue;
+
+		} else {
+
+			traceTree<T> retfalse( vector<traceTree<T>>{}, false, qi );
+			return retfalse;
+
+		}
+
+	}
+
+	vector<traceTree<T>> opts;
+
+	int c = w.at(0);
+	vector<int> wPrime(w);			// cw
+	wPrime.erase(wPrime.begin());
+
+	vector<T> epsilonQjs = n.epsilonTransition(qi);
+
+	for (auto item : epsilonQjs) {
+
+		opts.push_back(traceTree<T>(exploreHelper(n, item, w)));
+
+	}
+
+	vector<T> deltaQjs = n.D(qi, c);
+	
+	for (auto item : deltaQjs) {
+
+		opts.push_back(traceTree<T>(exploreHelper(n, item, wPrime)));
+
+	}
+
+	// traceTree(vector<traceTree<State>> branchPass, bool acceptedPass, State qiPass)
+
+	return traceTree<T>(opts, n.F(qi), qi);
+	
 }
