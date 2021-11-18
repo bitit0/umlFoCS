@@ -1129,7 +1129,7 @@ void equalityTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char>
 	cout << names[count] << " equality " << names[++count] << " -> " << equality(i, j, alphabet) << endl;
 	cout << names[count] << " equality " << names[++count] << " -> " << equality(j, k, alphabet) << endl;
 	cout << names[count] << " equality " << names[++count] << " -> " << equality(k, l, alphabet) << endl;
-	cout << names[1] << " subset " << names[1] << " -> " << subset(b, b, alphabet);
+	cout << names[1] << " equality " << names[1] << " -> " << subset(b, b, alphabet);
 
 }
 
