@@ -106,6 +106,9 @@ NFA< pair< int, pair< optional<A>, optional<B> > > > unionNFA(NFA<A> a, NFA<B> b
 template<typename A, typename B>
 NFA< pair< int, pair< optional<A>, optional<B> > > > concatenateNFA(NFA<A> a, NFA<B> b);
 
+template<typename T>
+void concatTests(vector<NFA<T>> NFApt, vector<string> listOfNFAs);
+
 int main() {
 
 	vector<int> v = { 0, 1 }; // alphabet
@@ -587,14 +590,15 @@ int main() {
 	cout << endl;
 	cout << endl;
 	
-	cout << "Complement Test (should work): ";
+	cout << "Complement Test (should work) [startsOneEndsZero == comp(comp(startsOneEndsZero))]: ";
 	cout << equality(*startsOneEndsZero, compDFA(compDFA(*startsOneEndsZero)), v);
 
-	cout << "\nUnion Test (should work): ";
+	cout << "\nUnion Test (should work) [containsZero == containsZero union threeConseuctiveZeros]: ";
 	cout << equality(*containsZero, unionDFA(*containsZero, *threeConsecutiveZeros), v);
 
-	cout << "\nIntersect Test (shouldn't work): ";
+	cout << "\nIntersect Test (shouldn't work) [evenNum != onlyOnes intersect onlyZeros]: ";
 	cout << equality(*evenNum, intersectDFA(*onlyOnes, *onlyZeros), v);
+	cout << endl;
 
 	// NFAs
 	NFA<char>* thirdFromEndIsOne = new NFA<char>(
@@ -847,26 +851,33 @@ int main() {
 	vector<string> listOfNFAs = {"thirdFromEndIsOne", "thirdFromEndIsZero", "substring101or11", "endsIn01", "endsIn10", "secondFromEndIsOne", 
 		"secondFromEndIsZero", "alphabetIs10and101", "substring00or11", "endsIn101", "lastCharIsZeroOrContainsOnlyOnes", "oneAtThirdOrSecondFromEnd"};
 
+	vector<NFA<char>> NFApt = { *thirdFromEndIsOne, *thirdFromEndIsZero, *substring101or11, *endsIn01, *endsIn10, *secondFromEndIsOne,
+		*secondFromEndIsZero, *alphabetIs10and101, *substring00or11, *endsIn101, *lastCharIsZeroOrContainsOnlyOnes, *oneAtThirdOrSecondFromEnd };
+
+	cout << "\n\NFA Concatenate Tests:\n\n";
+	concatTests(NFApt, listOfNFAs);
+	cout << "\n\n";
+
 	vector<int> tfeioTest = { 0,0,0,1,0,1 };
 	//traceTree<char> printableTraceTree = explore(*thirdFromEndIsOne, tfeioTest);
 
 	vector<int> ss101or11 = { 0,1,0,1,0,0 };
+	cout << "\nTrace Tree of substring101or11 & \"010100\"" << endl;
 	traceTree<char> printableTraceTree = explore(*substring101or11, ss101or11);
-
 	printTraceTree(printableTraceTree, 0);
 
 	//cout << backtracking(*substring101or11, ss101or11);
 	//backtracking(*substring101or11, ss101or11);
 
-	cout << backtracking(*endsIn01, tfeioTest);
+	cout << "\nBacktracking Test: " << backtracking(*endsIn01, tfeioTest);
 
 	vector<int> teststr = { 0,0,0,1,0,1 };
 	vector<int> teststr2 = { 1,1,0,1,0,1 };
 	auto finishunion = unionNFA(*endsIn01, *thirdFromEndIsOne);
 	//traceTree<T> printed = explore(finishunion, teststr);
-	auto finishconcat = concatenateNFA(*substring00or11, *endsIn101);
-	cout << "\n" << backtracking(finishunion, teststr);
-	cout << "\n" << backtracking(finishconcat, teststr2);
+	//auto finishconcat = concatenateNFA(*substring00or11, *endsIn101);
+	cout << "\n\nUnion Test (endsIn01 union thirdFromEndIsOne) [0,0,0,1,0,1]: " << backtracking(finishunion, teststr);
+	//cout << "\nConcat Test (substring00or11 concat endsIn101) [1,1,0,1,0,1]: " << backtracking(finishconcat, teststr2);
 
 
 	
@@ -1110,6 +1121,34 @@ void equalityTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char>
 	cout << names[count] << " equality " << names[++count] << " -> " << equality(j, k, alphabet) << endl;
 	cout << names[count] << " equality " << names[++count] << " -> " << equality(k, l, alphabet) << endl;
 	cout << names[1] << " subset " << names[1] << " -> " << subset(b, b, alphabet);
+
+}
+
+template<typename T>
+void concatTests(vector<NFA<T>> NFApt, vector<string> listOfNFAs) {
+
+	// vector<NFA<char>> NFApt = { *thirdFromEndIsOne, *thirdFromEndIsZero, *substring101or11, *endsIn01, *endsIn10, *secondFromEndIsOne,
+	//*secondFromEndIsZero, * alphabetIs10and101, * substring00or11, * endsIn101, * lastCharIsZeroOrContainsOnlyOnes, * oneAtThirdOrSecondFromEnd
+
+	vector<vector<int>> testString = { {0}, {1,0,1,0,0,0}, {1,1,0,1}, {0}, {1,0}, {0}, {1,0,1,0,1}, {1,0,1,1,1}, {1,1,0,1}, {1,0,1,0}, {1,1,1} };
+
+	for (int i = 0; i < testString.size(); i++) {
+
+		auto concatenated = concatenateNFA(NFApt[i], NFApt[i + 1]);
+		cout << listOfNFAs[i] << " concat " << listOfNFAs[i + 1] << " on [";
+
+		for (int j = 0; j < testString[i].size(); j++) {
+
+			cout << testString[i][j];
+
+		}
+		cout << "] -> ";
+
+		cout << backtracking(concatenated, testString[i]) << endl;
+
+	}
+
+
 
 }
 
@@ -1786,7 +1825,7 @@ NFA< pair< int, pair< optional<A>, optional<B> > > > concatenateNFA(NFA<A> a, NF
 			vector<A> epsilonQjs = a.epsilonTransition(p.second.first.value());
 
 			for (auto item : epsilonQjs) {
-				cout << "ept first " << endl;
+				//cout << "ept first " << endl;
 				opts.push_back({ 0, {item, nullopt} });
 
 				if (a.F(item)) {
