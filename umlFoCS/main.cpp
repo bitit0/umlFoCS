@@ -40,12 +40,13 @@ class traceTree {
 public:
 
 	traceTree(vector<traceTree<State>> branchPass, bool acceptedPass, State qiPass) : branch(branchPass), accepted(acceptedPass), qi(qiPass) {};
+	traceTree(vector<traceTree<State>> branchPass, bool acceptedPass, State qiPass, int cPass) : branch(branchPass), accepted(acceptedPass), qi(qiPass), c(cPass) {};
 
 	vector<traceTree<State>> branch; // branch state (tt ...)
 	bool accepted; // yes or no
 
 	State qi; // "State that we started in"
-
+	int c;
 };
 
 template<typename T>
@@ -89,6 +90,21 @@ traceTree<T> explore(NFA<T> n, vector<int> w);
 
 template<typename T>
 traceTree<T> exploreHelper(NFA<T> n, T qi, vector<int> w);
+
+template<typename T>
+void printTraceTree(traceTree<T> tree, int count);
+
+template<typename T>
+bool backtracking(NFA<T> n, vector<int> w);
+
+template<typename T>
+bool backtrackingHelper(NFA<T> n, vector<int> w, T qi);
+
+template<typename A, typename B>
+NFA< pair< int, pair< optional<A>, optional<B> > > > unionNFA(NFA<A> a, NFA<B> b);
+
+template<typename A, typename B>
+NFA< pair< int, pair< optional<A>, optional<B> > > > concatenateNFA(NFA<A> a, NFA<B> b);
 
 int main() {
 
@@ -561,7 +577,7 @@ int main() {
 	cout << "\nSUBSET TEST:\n\n";
 
 	subsetTests(*binaryString, *onlyOnes, *onlyZeros, *alternatingBinary, *evenLength, *oddNum, *evenNum, *containsOne,
-		*containsZero, *contains0011, *startsOneEndsZero, *threeConsecutiveZeros, v);
+		*containsZero, *contains0011, *startsOneEndsZero, *threeConsecutiveZeros, v);*/
 
 	cout << "\nEQUALITY TEST:\n\n";
 
@@ -569,7 +585,7 @@ int main() {
 		*containsZero, *contains0011, *startsOneEndsZero, *threeConsecutiveZeros, v);
 
 	cout << endl;
-	cout << endl;*/
+	cout << endl;
 
 	// NFAs
 	NFA<char>* thirdFromEndIsOne = new NFA<char>(
@@ -589,7 +605,7 @@ int main() {
 			if (qi == 'd') { return vector<char>{}; }
 			return vector<char>{};
 		},
-		[](char qi) { cout << "in ep" << endl; return vector<char>{}; },
+		[](char qi) { return vector<char>{}; },
 			[](char qi) { return qi == 'd'; }
 		);
 
@@ -608,6 +624,7 @@ int main() {
 				if (c == 0 || c == 1) return vector<char>{'d'};
 			}
 			if (qi == 'd') { return vector<char>{}; }
+			return vector<char>{};
 		},
 		[](char qi) { return vector<char>{}; },
 			[](char qi) { return qi == 'd'; }
@@ -649,6 +666,7 @@ int main() {
 				if (c == 1) return vector<char>{'c'};
 			}
 			if (qi == 'c') return vector<char>{};
+			return vector<char>{};
 		},
 		[](char qi) { return vector<char>{}; },
 		[](char qi) { return qi == 'c'; }
@@ -666,6 +684,7 @@ int main() {
 				if (c == 0) return vector<char>{'c'};
 			}
 			if (qi == 'c') return vector<char>{};
+			return vector<char>{};
 		},
 		[](char qi) { return vector<char>{}; },
 			[](char qi) { return qi == 'c'; }
@@ -684,6 +703,7 @@ int main() {
 				if (c == 0 || c == 1) return vector<char>{'c'};
 			}
 			if (qi == 'c') { return vector<char>{}; }
+			return vector<char>{};
 		},
 		[](char qi) { return vector<char>{}; },
 		[](char qi) { return qi == 'c'; }
@@ -701,6 +721,7 @@ int main() {
 				if (c == 0 || c == 1) return vector<char>{'c'};
 			}
 			if (qi == 'c') { return vector<char>{}; }
+			return vector<char>{};
 		},
 		[](char qi) { return vector<char>{}; },
 			[](char qi) { return qi == 'c'; }
@@ -743,6 +764,7 @@ int main() {
 			if (qi == 'd') {
 				return vector<char>{'d'};
 			}
+			return vector<char>{};
 		},
 		[](char qi) { return vector<char>{}; },
 		[](char qi) { return qi == 'd'; }
@@ -765,6 +787,7 @@ int main() {
 			if (qi == 'd') {
 				return vector<char>{'d'};
 			}
+			return vector<char>{};
 		},
 		[](char qi) { return vector<char>{}; },
 			[](char qi) { return qi == 'd'; }
@@ -781,6 +804,7 @@ int main() {
 				if (c == 0) return vector<char>{'c', 'd'};
 				if (c == 1) return vector<char>{'c'};
 			}
+			return vector<char>{};
 		},
 		[](char qi) {
 			if (qi == 'b') return vector<char>{'a', 'c'};
@@ -803,6 +827,7 @@ int main() {
 				if (c == 0 || c == 1) return vector<char>{'d'};
 			}
 			if (qi == 'd') { return vector<char>{}; };
+			return vector<char>{};
 		},
 		[](char qi) {
 			if (qi == 'b') return vector<char>{'c'};
@@ -813,13 +838,26 @@ int main() {
 	vector<string> listOfNFAs = {"thirdFromEndIsOne", "thirdFromEndIsZero", "substring101or11", "endsIn01", "endsIn10", "secondFromEndIsOne", 
 		"secondFromEndIsZero", "alphabetIs10and101", "substring00or11", "endsIn101", "lastCharIsZeroOrContainsOnlyOnes", "oneAtThirdOrSecondFromEnd"};
 
-	/*vector<int> tfeioTest = { 0,0,0,1,0,0 };
-	traceTree<char> printableTraceTree = explore(*thirdFromEndIsOne, tfeioTest);*/
+	vector<int> tfeioTest = { 0,0,0,1,0,1 };
+	//traceTree<char> printableTraceTree = explore(*thirdFromEndIsOne, tfeioTest);
 
-	vector<int> ss00or11 = { 0,1,0,0,1,1 };
-	traceTree<char> printableTraceTree = explore(*substring101or11, ss00or11);
+	vector<int> ss101or11 = { 0,1,0,1,0,0 };
+	traceTree<char> printableTraceTree = explore(*substring101or11, ss101or11);
 
+	printTraceTree(printableTraceTree, 0);
 
+	//cout << backtracking(*substring101or11, ss101or11);
+	//backtracking(*substring101or11, ss101or11);
+
+	cout << backtracking(*endsIn01, tfeioTest);
+
+	vector<int> teststr = { 0,0,0,1,0,1 };
+	vector<int> teststr2 = { 1,1,0,1,0,1 };
+	auto finishunion = unionNFA(*endsIn01, *thirdFromEndIsOne);
+	//traceTree<T> printed = explore(finishunion, teststr);
+	auto finishconcat = concatenateNFA(*substring00or11, *endsIn101);
+	cout << "\n" << backtracking(finishunion, teststr);
+	cout << "\n" << backtracking(finishconcat, teststr2);
 
 
 	
@@ -1423,17 +1461,19 @@ traceTree<T> explore(NFA<T> n, vector<int> w) {
 
 template<typename T>
 traceTree<T> exploreHelper(NFA<T> n, T qi, vector<int> w) {
+	
+	// traceTree(vector<traceTree<State>> branchPass, bool acceptedPass, State qiPass, int cPass) : branch(branchPass), accepted(acceptedPass), qi(qiPass), c(cPass) {};
 
 	if (w.empty()) {
 
 		if (n.F(qi)) {
 
-			traceTree<T> rettrue( vector<traceTree<T>>{}, true, qi);
+			traceTree<T> rettrue( vector<traceTree<T>>{}, true, qi, 99 );
 			return rettrue;
 
 		} else {
 
-			traceTree<T> retfalse( vector<traceTree<T>>{}, false, qi );
+			traceTree<T> retfalse( vector<traceTree<T>>{}, false, qi, -99 );
 			return retfalse;
 
 		}
@@ -1463,7 +1503,316 @@ traceTree<T> exploreHelper(NFA<T> n, T qi, vector<int> w) {
 	}
 
 	// traceTree(vector<traceTree<State>> branchPass, bool acceptedPass, State qiPass)
+	// traceTree(vector<traceTree<State>> branchPass, bool acceptedPass, State qiPass, int cPass) 
 
-	return traceTree<T>(opts, n.F(qi), qi);
+	return traceTree<T>(opts, n.F(qi), qi, w.at(0));
 	
+}
+
+template<typename T>
+void printTraceTree(traceTree<T> tree, int tabc) {
+
+	cout << endl;
+
+	for (int i = 0; i < tabc; i++) cout << "\t";
+
+	tabc++; // increase tabc for every recursive call
+
+	cout << "{ " << tree.qi << ", " << tree.c;
+
+	for (auto i : tree.branch) printTraceTree(i, tabc);
+
+	cout << endl;
+
+	for (int i = 0; i < tabc; i++) cout << "\t";
+
+	cout << "}";
+
+}
+
+template<typename T>
+bool backtracking(NFA<T> n, vector<int> w) {
+
+	return backtrackingHelper(n, w, n.q0);
+
+}
+
+template<typename T>
+bool backtrackingHelper(NFA<T> n, vector<int> w, T qi) {
+
+	vector<T> epsilonQjs = n.epsilonTransition(qi);
+
+	for (auto item : epsilonQjs) {
+
+		if (backtrackingHelper(n, w, item)) return true;
+
+	}
+
+	if (!w.empty()) {
+
+		int c = w.at(0);
+
+		vector<T> deltaQjs = n.D(qi, c);
+		w.erase(w.begin());
+
+		for (auto item : deltaQjs) {
+
+			if (backtrackingHelper(n, w, item)) return true;
+
+		}
+
+	}
+	else {
+
+		return n.F(qi);
+
+	}
+
+	return false;
+
+}
+
+template<typename A, typename B>
+NFA<pair<int, pair<optional<A>, optional<B>>>> unionNFA(NFA<A> a, NFA<B> b) {
+
+	function<bool(A)> a_Q = a.Q;
+	function<bool(B)> b_Q = b.Q;
+
+	function<vector<A>(A, int)> a_D = a.D;
+	function<vector<B>(B, int)> b_D = b.D;
+
+	function<vector<A>(A)> a_epT = a.epsilonTransition;
+	function<vector<B>(B)> b_epT = b.epsilonTransition;
+
+	function<bool(A)> a_F = a.F;
+	function<bool(B)> b_F = b.F;
+
+	pair< int, pair< optional<A>, optional<B> > > q0c{ 0, {nullopt, nullopt} };
+
+	// Q function
+	function<bool(pair< int, pair< optional<A>, optional<B> > >)> Qc = [=](pair< int, pair< optional<A>, optional<B> > > p) {
+
+		if (p == q0c) {												// start state is a valid state
+
+			return true;
+
+		}
+		else if (p.first == 0 && p.second.first != nullopt) {		// NFA a
+
+			return a_Q(p.second.first.value());								// check if in NFA a
+
+		}
+		else if (p.first == 1 && p.second.second != nullopt) {		// if not in NFA a, then check NFA b
+
+			return b_Q(p.second.second.value());							// check if in NFA b
+
+		}
+
+		return false;												// not a state in any NFA or start/end
+
+	};
+
+	// Delta function
+	function< vector< pair< int, pair< optional<A>, optional<B> > > >(pair< int, pair< optional<A>, optional<B> > >, int) > Dc = [=](pair< int, pair< optional<A>, optional<B> > > p, int c) {
+
+		vector< pair< int, pair< optional<A>, optional<B> > > > opts;	// list of options for where to proceed next
+
+		if (p.first == 0 && p.second.first.value()) {				// NFA a
+
+			vector<A> deltaQjs = a.D(p.second.first.value(), c);			// get all of the possible delta transitions from the current state
+
+			for (auto item : deltaQjs) {							// loop thru and add to the list of possible options
+
+				opts.push_back({ 0, {item, nullopt} });
+
+			}
+
+		}
+		else if (p.first == 1 && p.second.second) {		// NFA b
+
+			vector<B> deltaQjs = b.D(p.second.second.value(), c);
+
+			for (auto item : deltaQjs) {
+
+				opts.push_back({ 1, {nullopt, item} });
+
+			}
+
+		}
+		return opts;
+	};
+
+	// example of pair: { 0, {a.q0, nullopt} }
+	// "0" is which NFA (a or b)
+	// "a.q0" is a state in the NFA
+	// nullopt would be a state in the NFA if we were talking about B
+
+	// Epsilon Transition function
+	function< vector< pair< int, pair< optional<A>, optional<B> > > >(pair< int, pair< optional<A>, optional<B> > >) > epTc = [=](pair< int, pair< optional<A>, optional<B> > > p) {
+
+		vector< pair< int, pair< optional<A>, optional<B> > > > opts;
+
+		if (p == q0c) {
+
+			opts.push_back({ 0, { a.q0, nullopt } });
+			opts.push_back({ 1, { nullopt, b.q0 } });
+
+		}
+		else if (p.first == 0 && p.second.first.value()) {			// NFA a
+
+			vector<A> epsilonQjs = a.epsilonTransition(p.second.first.value());
+
+			for (auto item : epsilonQjs) {
+
+				opts.push_back({ 0, {item, nullopt} });
+
+			}
+
+		}
+		else if (p.first == 1 && p.second.second.value()) {			// NFA b
+
+			vector<B> epsilonQjs = b.epsilonTransition(p.second.second.value());
+
+			for (auto item : epsilonQjs) {
+
+				opts.push_back({ 1, {nullopt, item} });
+
+			}
+
+		}
+		return opts;
+	};
+
+	function<bool(pair< int, pair< optional<A>, optional<B> > >)> Fc = [=](pair< int, pair< optional<A>, optional<B> > > p) {
+
+		if (p.first == 0 && p.second.first != nullopt) {
+
+			return a.F(p.second.first.value());
+
+		}
+		else if (p.first == 1 && p.second.second != nullopt) {
+
+			return b.F(p.second.second.value());
+
+		}
+		return false;
+	};
+
+	return NFA<pair<int, pair<optional<A>, optional<B>>>>(Qc, q0c, Dc, epTc, Fc);
+}
+
+template<typename A, typename B>
+NFA< pair< int, pair< optional<A>, optional<B> > > > concatenateNFA(NFA<A> a, NFA<B> b) {
+
+	pair< int, pair< optional<A>, optional<B> > > q0c = { 0, {nullopt, nullopt} };
+
+	function<bool(pair< int, pair< optional<A>, optional<B> > >)> Qc = [=](pair< int, pair< optional<A>, optional<B> > > p) {
+
+		if (p == q0c) {
+
+			return true;
+
+		}
+		else if (p.first == 0 && p.second.first != nullopt) {
+
+			return a.Q(p.second.first.value());
+
+		}
+		else if (p.first == 1 && p.second.second != nullopt) {
+
+			return b.Q(p.second.second.value());
+
+		}
+
+		return false;
+	};
+
+	function< vector< pair< int, pair< optional<A>, optional<B> > > >(pair< int, pair< optional<A>, optional<B> > >, int) > Dc = [=](pair< int, pair< optional<A>, optional<B> > > p, int c) {
+
+		vector< pair< int, pair< optional<A>, optional<B> > > > opts;
+
+		if (p.first == 0 && p.second.first) {
+
+			vector<A> deltaQjs = a.D(p.second.first.value(), c);
+
+			for (auto item : deltaQjs) {
+
+				opts.push_back({ 0, {item, nullopt} });
+
+				if (a.F(item)) {
+
+					opts.push_back({ 1, {nullopt, b.q0} });
+
+				}
+
+			}
+
+
+		}
+		else if (p.first == 1 && p.second.second) {
+
+			vector<B> deltaQjs = b.D(p.second.second.value(), c);
+
+			for (auto item : deltaQjs) {
+
+				opts.push_back({ 1, {nullopt, item} });
+
+			}
+
+		}
+		return opts;
+	};
+
+	function< vector< pair< int, pair< optional<A>, optional<B> > > >(pair< int, pair< optional<A>, optional<B> > >) > epTc = [=](pair< int, pair< optional<A>, optional<B> > > p) {
+
+		vector< pair< int, pair< optional<A>, optional<B> > > > opts;
+
+		if (p == q0c) {
+
+			opts.push_back({ 0, {a.q0, nullopt} });
+
+		}
+		else if (p.first == 0 && p.second.first) {
+
+			vector<A> epsilonQjs = a.epsilonTransition(p.second.first.value());
+
+			for (auto item : epsilonQjs) {
+				cout << "ept first " << endl;
+				opts.push_back({ 0, {item, nullopt} });
+
+				if (a.F(item)) {
+
+					opts.push_back({ 1, {nullopt, b.q0} });
+
+				}
+
+			}
+
+		}
+		else if (p.first == 1 && p.second.second) {
+
+			vector<B> epsilonQjs = b.epsilonTransition(p.second.second.value());
+
+			for (auto item : epsilonQjs) {
+
+				opts.push_back({ 1, {nullopt, item} });
+
+			}
+
+		}
+		return opts;
+	};
+
+	function< bool(pair< int, pair< optional<A>, optional<B> > >)> Fc = [=](pair< int, pair< optional<A>, optional<B> > > p) {
+
+		if (p.first == 1 && p.second.second != nullopt) {
+
+			return b.F(p.second.second.value());
+
+		}
+		return false;
+	};
+
+
+	return NFA<pair<int, pair<optional<A>, optional<B>>>>(Qc, q0c, Dc, epTc, Fc);
 }
