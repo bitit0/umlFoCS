@@ -80,10 +80,10 @@ void subsetTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e
 void equalityTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char> e, DFA<char> f, DFA<char> g, DFA<char> h, DFA<char> i, DFA<char> j, DFA<char> k, DFA<char> l, vector<int> alphabet);
 
 template<typename T>
-bool oracle(NFA<T> n, vector<int> w, vector<pair<T, list<int>>> trace, bool accepted);
+bool oracle(NFA<T> n, vector<int> w, vector<pair<T, vector<int>>> trace, bool accepted);
 
 template<typename T>
-bool oracleHelper(NFA<T> n, T qi, vector<int> w, vector<pair<T, list<int>>> trace);
+bool oracleHelper(NFA<T> n, T qi, vector<int> w, vector<pair<T, vector<int>>> trace);
 
 template<typename T>
 traceTree<T> explore(NFA<T> n, vector<int> w);
@@ -858,13 +858,22 @@ int main() {
 	concatTests(NFApt, listOfNFAs);
 	cout << "\n\n";
 
+	//template<typename T>
+	//bool oracle(NFA<T> n, vector<T> w, vector<pair<T, vector<int>>> trace, bool accepted);
+
+	cout << "\nOracle Test:\n";
+	vector<int> oracleTestString = { 1,0,0 };
+	vector<pair<char, vector<int>>> oracleTestTrace = { {'a', {1,0,0}}, {'b', {0,0}}, {'c', {0}} };
+	cout << oracle(*thirdFromEndIsOne, oracleTestString, oracleTestTrace, true);
+
+
 	vector<int> tfeioTest = { 0,0,0,1,0,1 };
 	//traceTree<char> printableTraceTree = explore(*thirdFromEndIsOne, tfeioTest);
 
 	vector<int> ss101or11 = { 0,1,0,1,0,0 };
 	cout << "\nTrace Tree of substring101or11 & \"010100\"" << endl;
 	traceTree<char> printableTraceTree = explore(*substring101or11, ss101or11);
-	printTraceTree(printableTraceTree, 0);
+	//printTraceTree(printableTraceTree, 0);
 
 	//cout << backtracking(*substring101or11, ss101or11);
 	//backtracking(*substring101or11, ss101or11);
@@ -879,7 +888,7 @@ int main() {
 	cout << "\n\nUnion Test (endsIn01 union thirdFromEndIsOne) [0,0,0,1,0,1]: " << backtracking(finishunion, teststr);
 	//cout << "\nConcat Test (substring00or11 concat endsIn101) [1,1,0,1,0,1]: " << backtracking(finishconcat, teststr2);
 
-
+	//vector<pair<T, list<int>>> trace
 	
 
 
@@ -1121,6 +1130,21 @@ void equalityTests(DFA<char> a, DFA<char> b, DFA<char> c, DFA<char> d, DFA<char>
 	cout << names[count] << " equality " << names[++count] << " -> " << equality(j, k, alphabet) << endl;
 	cout << names[count] << " equality " << names[++count] << " -> " << equality(k, l, alphabet) << endl;
 	cout << names[1] << " subset " << names[1] << " -> " << subset(b, b, alphabet);
+
+}
+
+template<typename T>
+void NFATraces(vector<NFA<T>> NFApt, vector<string> listOfNFAs) { //BRUH
+
+	// vector<NFA<char>> NFApt = { *thirdFromEndIsOne, *thirdFromEndIsZero, *substring101or11, *endsIn01, *endsIn10, *secondFromEndIsOne,
+	//*secondFromEndIsZero, * alphabetIs10and101, * substring00or11, * endsIn101, * lastCharIsZeroOrContainsOnlyOnes, * oneAtThirdOrSecondFromEnd
+
+	vector<pair<char, vector<int>>> accepted;
+
+	// thirdFromEndIsOne
+	accepted = { {'a', {1,0,0}}, {'b', {0,0}}, {'c', {0}} };
+
+
 
 }
 
@@ -1460,14 +1484,14 @@ NFA<T> convert(DFA<T> dfaToConvert) {
 // Then trace would follow this: { { {qi}, {w} }, { {qj}, {wprime} }}
 
 template<typename T>
-bool oracle(NFA<T> n, vector<int> w, vector<pair<T, list<int>>> trace, bool accepted) {
+bool oracle(NFA<T> n, vector<int> w, vector<pair<T, vector<int>>> trace, bool accepted) {
 
 	return accepted == oracleHelper(n, n.q0, w, trace);
 
 }
 
 template<typename T>
-bool oracleHelper(NFA<T> n, T qi, vector<int> w, vector<pair<T, list<int>>> trace) {
+bool oracleHelper(NFA<T> n, T qi, vector<int> w, vector<pair<T, vector<int>>> trace) {
 
 	if (trace.empty() && w.empty()) return true;
 
@@ -1475,29 +1499,75 @@ bool oracleHelper(NFA<T> n, T qi, vector<int> w, vector<pair<T, list<int>>> trac
 
 		// Get qj and w-prime
 
+		vector<int> temp;
+		for (int i = 1; i < w.size(); i++) {
+
+			temp.push_back(w.at(i));
+
+		}
+		/*cout << "w:\n";
+		for (int i = 0; i < w.size(); i++) {
+			cout << w[i];
+		}
+		cout << "\ntemp:" << temp.size() << endl;
+		for (int i = 0; i < temp.size(); i++) {
+			cout << temp[i];
+		}
+		cout << "\ntrace[0]:";
+		for (int i = 0; i < trace[0].second.size(); i++) {
+			cout << trace[0].second[i];
+		}
+		cout << "\ntrace[1]:" << trace[1].second.size() << endl;
+		for (int i = 0; i < trace[1].second.size(); i++) {
+			cout << trace[1].second[i];
+		}
+		cout << "\n";*/
+
+
 		if (w == trace[0].second) { // epsilon transition
 
 			auto prime = n.epsilonTransition(qi);
-			bool validTransition = prime.find(prime.begin(), prime.end(), trace[1].first);
 
-			if (validTransition) return validTransition && oracleHelper(n, prime.first, trace.erase(trace.begin()));
+			auto validTransition = find(prime.begin(), prime.end(), trace[1].first);
+			trace.erase(trace.begin());
 
-		} else if (list<int>(w.at(1), w.end()) == trace[1].second) {
+			if (validTransition != prime.end()) {
+
+				//cout << "wha";
+				return oracleHelper(n, prime.at(0), w, trace);
+
+			}
+
+		}
+		else if (temp == trace[1].second) {
+
+			//cout << "im in second loop!!!!!!!!!!!!";
 
 			T popped = w.front();
 			auto prime = n.D(qi, popped);
-			bool validTransition = prime.find(prime.begin(), prime.end(), trace[1].first);
 
-			if (validTransition) return validTransition && oracleHelper(n, prime.first, trace.erase(trace.begin()));
+			//cout << "prime:" << prime.size() << endl;
+			//for (int i = 0; i < prime.size(); i++) cout << prime[i];
+			//cout << "\n";
+
+			auto validTransition = find(prime.begin(), prime.end(), trace[1].first);
+			trace.erase(trace.begin());
+
+			if (validTransition != prime.end()) {
+
+				//cout << "ooga";
+				return oracleHelper(n, prime.at(0), w, trace);
+			}
 
 		} else {
 			
+			//cout << "wtf";
 			return false;
 
 		}
 
 	}
-
+	return true;
 }
 
 template<typename T>
