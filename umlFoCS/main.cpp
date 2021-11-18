@@ -586,6 +586,15 @@ int main() {
 
 	cout << endl;
 	cout << endl;
+	
+	cout << "Complement Test (should work): ";
+	cout << equality(*startsOneEndsZero, compDFA(compDFA(*startsOneEndsZero)), v);
+
+	cout << "\nUnion Test (should work): ";
+	cout << equality(*containsZero, unionDFA(*containsZero, *threeConsecutiveZeros), v);
+
+	cout << "\nIntersect Test (shouldn't work): ";
+	cout << equality(*evenNum, intersectDFA(*onlyOnes, *onlyZeros), v);
 
 	// NFAs
 	NFA<char>* thirdFromEndIsOne = new NFA<char>(
