@@ -1976,6 +1976,6 @@ NFA<T> kleeneStar(NFA<T> n) {
 
 	function<bool(T)> k_F = [=](T qi) { return (n.F(qi) || qi == k_q0); };
 
-	return NFA<T>(k_Q, k_q0, k_D, k_F);
+	return NFA<T>(k_Q, k_q0, k_D, k_epT, k_F);
 
 }
