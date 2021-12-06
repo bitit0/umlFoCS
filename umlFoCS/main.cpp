@@ -109,6 +109,9 @@ NFA< pair< int, pair< optional<A>, optional<B> > > > concatenateNFA(NFA<A> a, NF
 template<typename T>
 void concatTests(vector<NFA<T>> NFApt, vector<string> listOfNFAs);
 
+template<typename T>
+NFA<T> kleeneStar(NFA<T> n);
+
 int main() {
 
 	vector<int> v = { 0, 1 }; // alphabet
@@ -873,7 +876,7 @@ int main() {
 	vector<int> ss101or11 = { 0,1,0,1,0,0 };
 	cout << "\nTrace Tree of substring101or11 & \"010100\"" << endl;
 	traceTree<char> printableTraceTree = explore(*substring101or11, ss101or11);
-	//printTraceTree(printableTraceTree, 0);
+	printTraceTree(printableTraceTree, 0);
 
 	//cout << backtracking(*substring101or11, ss101or11);
 	//backtracking(*substring101or11, ss101or11);
@@ -1933,4 +1936,46 @@ NFA< pair< int, pair< optional<A>, optional<B> > > > concatenateNFA(NFA<A> a, NF
 
 
 	return NFA<pair<int, pair<optional<A>, optional<B>>>>(Qc, q0c, Dc, epTc, Fc);
+}
+
+template<typename T>
+NFA<T> kleeneStar(NFA<T> n) {
+
+	// new start state
+	T k_q0 = 'a';
+
+	function<bool(T)> k_Q = [=](T qi) { return n.Q(qi) || qi == k_q0; }; // check if state is a state of the NFA, or if it's the new start state
+
+	// new delta transitions
+	function<vector<T>(T, int)> k_D = [=](T qi, int c) {
+
+		vector<T> k_transitions;
+		k_transitions = n.D(qi, c);
+
+		return k_transitions;
+	};
+
+	// new epsilon transitions
+	function<vector<T>(T, int)> k_epT = [=](T qi) {
+
+		vector<T> k_transitions;
+		k_transitions = n.epsilonTransition(qi);
+
+		if (qi == k_q0) {				// new epsilon transitions
+
+			k_transitions.push_back(n.q0);	// if at q0, go to the machine N
+
+		}
+		else {
+
+			k_transitions.push_back(k_q0);	// if at machine N, then go to q0
+
+		}
+		return k_transitions;
+	};
+
+	function<bool(T)> k_F = [=](T qi) { return (n.F(qi) || qi == k_q0); };
+
+	return NFA<T>(k_Q, k_q0, k_D, k_F);
+
 }
