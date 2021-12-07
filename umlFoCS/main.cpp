@@ -49,6 +49,20 @@ public:
 	int c;
 };
 
+class Regex {
+public:
+	Regex(char type);							// epsilon, null
+	Regex(char type, int c);					// singleton
+	Regex(char type, Regex* lhs, Regex* rhs);	// union, concat
+	Regex(char type, Regex* operand);			// Kleene star
+
+private:
+	char type;
+	int c;
+	Regex* lhs;
+	Regex* rhs;
+};
+
 template<typename T>
 bool acceptsString(DFA<T> d, list<int> l);
 
