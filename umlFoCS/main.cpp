@@ -51,12 +51,11 @@ public:
 
 class Regex {
 public:
-	Regex(char type);							// epsilon, null
-	Regex(char type, int c);					// singleton
-	Regex(char type, Regex* lhs, Regex* rhs);	// union, concat
-	Regex(char type, Regex* operand);			// Kleene star
+	Regex(char type) : type(type) {};							// epsilon, null
+	Regex(char type, int c) : type(type), c(c) {};					// singleton
+	Regex(char type, Regex* lhs, Regex* rhs) : type(type), lhs(lhs), rhs(rhs) {};	// union, concat
+	Regex(char type, Regex* operand) : type(type), lhs(operand) {};			// Kleene star
 
-private:
 	char type;
 	int c;
 	Regex* lhs;
@@ -128,6 +127,8 @@ NFA<T> kleeneStar(NFA<T> n);
 
 template<typename T>
 DFA<vector<T>> NFAtoDFA(NFA<T> n);
+
+void printRegex(Regex r);
 
 int main() {
 
@@ -602,7 +603,7 @@ int main() {
 	subsetTests(*binaryString, *onlyOnes, *onlyZeros, *alternatingBinary, *evenLength, *oddNum, *evenNum, *containsOne,
 		*containsZero, *contains0011, *startsOneEndsZero, *threeConsecutiveZeros, v);*/
 
-	cout << "\nEQUALITY TEST:\n\n";
+	/*cout << "\nEQUALITY TEST:\n\n";
 
 	equalityTests(*binaryString, *onlyOnes, *onlyZeros, *alternatingBinary, *evenLength, *oddNum, *evenNum, *containsOne,
 		*containsZero, *contains0011, *startsOneEndsZero, *threeConsecutiveZeros, v);
@@ -618,7 +619,7 @@ int main() {
 
 	cout << "\nIntersect Test (shouldn't work) [evenNum != onlyOnes intersect onlyZeros]: ";
 	cout << equality(*evenNum, intersectDFA(*onlyOnes, *onlyZeros), v);
-	cout << endl;
+	cout << endl;*/
 
 	// NFAs
 	NFA<char>* thirdFromEndIsOne = new NFA<char>(
@@ -874,47 +875,55 @@ int main() {
 	vector<NFA<char>> NFApt = { *thirdFromEndIsOne, *thirdFromEndIsZero, *substring101or11, *endsIn01, *endsIn10, *secondFromEndIsOne,
 		*secondFromEndIsZero, *alphabetIs10and101, *substring00or11, *endsIn101, *lastCharIsZeroOrContainsOnlyOnes, *oneAtThirdOrSecondFromEnd };
 
-	cout << "\n\NFA Concatenate Tests:\n\n";
-	concatTests(NFApt, listOfNFAs);
-	cout << "\n\n";
+	//cout << "\n\NFA Concatenate Tests:\n\n";
+	//concatTests(NFApt, listOfNFAs);
+	//cout << "\n\n";
 
-	//template<typename T>
-	//bool oracle(NFA<T> n, vector<T> w, vector<pair<T, vector<int>>> trace, bool accepted);
+	////template<typename T>
+	////bool oracle(NFA<T> n, vector<T> w, vector<pair<T, vector<int>>> trace, bool accepted);
 
-	cout << "\nOracle Test:\n";
-	vector<int> oracleTestString = { 1,0,0 };
-	vector<pair<char, vector<int>>> oracleTestTrace = { {'a', {1,0,0}}, {'b', {0,0}}, {'c', {0}} };
-	cout << oracle(*thirdFromEndIsOne, oracleTestString, oracleTestTrace, true);
+	//cout << "\nOracle Test:\n";
+	//vector<int> oracleTestString = { 1,0,0 };
+	//vector<pair<char, vector<int>>> oracleTestTrace = { {'a', {1,0,0}}, {'b', {0,0}}, {'c', {0}} };
+	//cout << oracle(*thirdFromEndIsOne, oracleTestString, oracleTestTrace, true);
 
 
-	vector<int> tfeioTest = { 0,0,0,1,0,1 };
-	//traceTree<char> printableTraceTree = explore(*thirdFromEndIsOne, tfeioTest);
+	//vector<int> tfeioTest = { 0,0,0,1,0,1 };
+	////traceTree<char> printableTraceTree = explore(*thirdFromEndIsOne, tfeioTest);
 
-	vector<int> ss101or11 = { 0,1,0,1,0,0 };
-	cout << "\nTrace Tree of substring101or11 & \"010100\"" << endl;
-	traceTree<char> printableTraceTree = explore(*substring101or11, ss101or11);
-	printTraceTree(printableTraceTree, 0);
+	//vector<int> ss101or11 = { 0,1,0,1,0,0 };
+	//cout << "\nTrace Tree of substring101or11 & \"010100\"" << endl;
+	//traceTree<char> printableTraceTree = explore(*substring101or11, ss101or11);
+	//printTraceTree(printableTraceTree, 0);
 
-	//cout << backtracking(*substring101or11, ss101or11);
-	//backtracking(*substring101or11, ss101or11);
+	////cout << backtracking(*substring101or11, ss101or11);
+	////backtracking(*substring101or11, ss101or11);
 
-	cout << "\nBacktracking Test: " << backtracking(*endsIn01, tfeioTest);
+	//cout << "\nBacktracking Test: " << backtracking(*endsIn01, tfeioTest);
 
-	vector<int> teststr = { 0,0,0,1,0,1 };
-	vector<int> teststr2 = { 1,1,0,1,0,1 };
-	auto finishunion = unionNFA(*endsIn01, *thirdFromEndIsOne);
-	//traceTree<T> printed = explore(finishunion, teststr);
-	//auto finishconcat = concatenateNFA(*substring00or11, *endsIn101);
-	cout << "\n\nUnion Test (endsIn01 union thirdFromEndIsOne) [0,0,0,1,0,1]: " << backtracking(finishunion, teststr);
-	//cout << "\nConcat Test (substring00or11 concat endsIn101) [1,1,0,1,0,1]: " << backtracking(finishconcat, teststr2);
+	//vector<int> teststr = { 0,0,0,1,0,1 };
+	//vector<int> teststr2 = { 1,1,0,1,0,1 };
+	//auto finishunion = unionNFA(*endsIn01, *thirdFromEndIsOne);
+	////traceTree<T> printed = explore(finishunion, teststr);
+	////auto finishconcat = concatenateNFA(*substring00or11, *endsIn101);
+	//cout << "\n\nUnion Test (endsIn01 union thirdFromEndIsOne) [0,0,0,1,0,1]: " << backtracking(finishunion, teststr);
+	////cout << "\nConcat Test (substring00or11 concat endsIn101) [1,1,0,1,0,1]: " << backtracking(finishconcat, teststr2);
 
-	//vector<pair<T, list<int>>> trace
-	
-	vector ksTest = { 1, 0, 0 };
+	////vector<pair<T, list<int>>> trace
+	//
+	//vector ksTest = { 1, 0, 0 };
 
 	//cout << backtracking(kleeneStar(*thirdFromEndIsOne), ksTest);
 
 	//auto nfaConvertTest1 = NFAtoDFA(*thirdFromEndIsOne);
+
+	Regex lhs('s', 5);
+	Regex rhs('s', 6);
+
+	Regex un('u', &lhs, &rhs);
+	Regex st('k', &lhs);
+	printRegex(un); cout << "\n";
+	printRegex(st);
 
 
 	return 0;
@@ -2108,4 +2117,40 @@ DFA<vector<T>> NFAtoDFA(NFA<T> n) {
 	};
 
 	return DFA<vector<T>>(qd, q0d, dd, fd);
+}
+
+void printRegex(Regex r) {
+
+	if (r.type == 'n') cout << "";	// null/empty
+	if (r.type == 'e') cout << "";	// epsilon
+	if (r.type == 's') cout << r.c;	// singleton/character
+
+	if (r.type == 'u') {			// union
+
+		cout << "(";
+		printRegex(*(r.lhs));
+		cout << " u ";
+		printRegex(*(r.rhs));
+		cout << ")";
+
+	}
+
+	if (r.type == 'k') {			// kleene
+
+		cout << "(";
+		printRegex(*r.lhs);
+		cout << ")*";
+
+	}
+
+	if (r.type == 'c') {			// concat
+
+		cout << "(";
+		printRegex(*(r.lhs));
+		cout << " o ";
+		printRegex(*(r.rhs));
+		cout << ")";
+
+	}
+
 }
