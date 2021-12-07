@@ -2154,3 +2154,44 @@ void printRegex(Regex r) {
 	}
 
 }
+
+optional<vector<int>> generate(Regex r) {
+
+	if (r.type == 'n') return nullopt;
+	if (r.type == 'e') return vector<int>{};
+	if (r.type == 's') return vector<int>{r.c};
+
+	if (r.type == 'u') {
+
+		auto gx = generate(*r.lhs);
+		if (gx != nullopt) return gx;
+		return generate(*r.rhs);
+
+	}
+
+	if (r.type == 'k') {
+
+		Regex lhs('e');
+		Regex rhs( 'c', r.lhs, new Regex('k', r.lhs) );
+
+		return generate(Regex('u', &lhs, &rhs));
+
+	}
+
+	if (r.type == 'c') {
+
+		auto gx = generate(*r.lhs);
+		auto gy = generate(*r.rhs);
+
+		if (gx != nullopt && gy != nullopt) {
+
+			gx.value().insert( gx.value().end(), gy.value().begin(), gy.value().end() );	// gx circ gy
+			return gx;
+
+		}
+
+		return nullopt;
+
+	}
+
+}
