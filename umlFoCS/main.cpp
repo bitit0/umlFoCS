@@ -112,6 +112,9 @@ void concatTests(vector<NFA<T>> NFApt, vector<string> listOfNFAs);
 template<typename T>
 NFA<T> kleeneStar(NFA<T> n);
 
+template<typename T>
+DFA<vector<T>> NFAtoDFA(NFA<T> n);
+
 int main() {
 
 	vector<int> v = { 0, 1 }; // alphabet
@@ -893,6 +896,11 @@ int main() {
 
 	//vector<pair<T, list<int>>> trace
 	
+	vector ksTest = { 1, 0, 0 };
+
+	//cout << backtracking(kleeneStar(*thirdFromEndIsOne), ksTest);
+
+	//auto nfaConvertTest1 = NFAtoDFA(*thirdFromEndIsOne);
 
 
 	return 0;
@@ -1956,7 +1964,7 @@ NFA<T> kleeneStar(NFA<T> n) {
 	};
 
 	// new epsilon transitions
-	function<vector<T>(T, int)> k_epT = [=](T qi) {
+	function<vector<T>(T)> k_epT = [=](T qi) {
 
 		vector<T> k_transitions;
 		k_transitions = n.epsilonTransition(qi);
@@ -1978,4 +1986,112 @@ NFA<T> kleeneStar(NFA<T> n) {
 
 	return NFA<T>(k_Q, k_q0, k_D, k_epT, k_F);
 
+}
+
+template<typename T>
+DFA<vector<T>> NFAtoDFA(NFA<T> n) {
+
+	// set of states
+	auto qd = [=](vector<T> stateSet) {
+
+		vector<T> pset;
+
+		for (int i = 0; i < stateSet.size(); i++) {
+
+			if (n.Q(stateSet.at(i))) {
+
+				for (int j = 0; j < pset.size(); j++) {
+
+					if (pset.at(j) == stateSet.at(i)) return false;
+
+				}
+
+				pset.push_back(stateSet.at(i));
+
+			}
+			else {
+				return false;
+			}
+		}
+		return true;
+	};
+
+	// epsilon transitions
+	auto E = [=](vector<T> X) {
+
+		bool changed = true;
+
+		while (changed) {
+
+			changed = false;
+
+			for (int i = 0; i < X.size(); i++) {
+
+				vector<T> epT_list = n.epsilonTransition(X.at(i));
+
+				for (int j = 0; j < epT_list.size(); j++) {
+
+					if (find(X.begin(), X.end(), epT_list.at(j)) == X.end()) {
+
+						changed = true;
+						X.push_back(epT_list.at(j));
+
+					}
+
+				}
+
+			}
+
+		}
+		return X;
+	};
+
+	// initial state, just intital state of q0, but have to apply E function
+	vector<T> q0d = { n.q0 };
+	q0d = E(q0d);
+
+	// delta function
+	auto dd = [=](vector<T> qis, int c) {
+
+		vector<T> possible;
+		for (int i = 0; i < qis.size(); i++) {						// for every state
+
+			vector<T> deltaTransitions = n.D(qis.at(i), c);			// get delta transitions
+
+			for (int j = 0; j < deltaTransitions.size(); j++) {
+
+				possible.push_back(deltaTransitions.at(i));			// unioning
+
+			}
+
+		}
+
+		for (int i = 0; i < possible.size(); i++) {					// erase duplicates
+
+			for (int j = 0; j < possible.size(); j++) {
+
+				if (i != j && possible.at(i) == possible.at(j)) {
+
+					possible.erase(possible.begin() + j);
+
+				}
+
+			}
+
+		}
+		return E(possible);
+	};
+
+	// new set of accepted states
+	auto fd = [=](vector<T> qis) {
+
+		for (int i = 0; i < qis.size(); i++) {
+
+			if (n.F(qis.at(i))) return true;		// if accepted, return true
+
+		}
+		return false;								// if not inside n.F, then return false because it's not accepted
+	};
+
+	return DFA<vector<T>>(qd, q0d, dd, fd);
 }
