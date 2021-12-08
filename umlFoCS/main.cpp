@@ -905,7 +905,7 @@ int main() {
 	//cout << backtracking(*substring101or11, ss101or11);
 	//backtracking(*substring101or11, ss101or11);
 
-	cout << "\nBacktracking Test: " << backtracking(*endsIn01, tfeioTest);
+	//cout << "\nBacktracking Test: " << backtracking(*endsIn01, tfeioTest);
 
 	//vector<int> teststr = { 0,0,0,1,0,1 };
 	//vector<int> teststr2 = { 1,1,0,1,0,1 };
@@ -917,9 +917,9 @@ int main() {
 
 	////vector<pair<T, list<int>>> trace
 	//
-	//vector ksTest = { 1, 0, 0 };
+	vector ksTest = { 1, 0, 0 };
 
-	//cout << backtracking(kleeneStar(*thirdFromEndIsOne), ksTest);
+	cout << backtracking(kleeneStar(*thirdFromEndIsOne), ksTest);
 
 	//auto nfaConvertTest1 = NFAtoDFA(*thirdFromEndIsOne);
 
@@ -1733,6 +1733,7 @@ bool backtracking(NFA<T> n, vector<int> w) {
 
 			if (find(visited.begin(), visited.end(), temp) == visited.end()) {
 
+				cout << "d";
 				pending.push_back(temp);
 				visited.push_back(temp);
 
@@ -2237,7 +2238,20 @@ optional<vector<int>> generate(Regex r) {
 		Regex lhs('e');
 		Regex rhs( 'c', r.lhs, new Regex('k', r.lhs) );
 
-		return generate(Regex('u', &lhs, &rhs));
+		srand(time(NULL));
+
+		if (rand() % 2 == 0) {
+		
+			return generate(lhs);
+
+		}
+		else {
+
+			return generate(rhs);
+		
+		}
+
+		//return generate(Regex('u', &lhs, &rhs));
 
 	}
 
