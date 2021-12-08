@@ -130,6 +130,9 @@ DFA<vector<T>> NFAtoDFA(NFA<T> n);
 
 void printRegex(Regex r);
 
+template<typename T>
+NFA<T> compile(Regex r);
+
 int main() {
 
 	vector<int> v = { 0, 1 }; // alphabet
@@ -2250,5 +2253,62 @@ optional<vector<int>> generate(Regex r) {
 		return nullopt;
 
 	}
+
+}
+
+template<typename T>
+NFA<T> compile(Regex r) {
+
+	if (r.type == 'n') {
+
+		NFA<char>* acceptNoStrings = new NFA<char>(
+			[](char x) { return x == 'a'; },
+			'a',
+			[](char qi, int c) { return vector<char>{'a'}; },
+			[](char qi) { return vector<char>{}; },
+			[](char qi) { return false; }
+		);
+
+		return acceptNoStrings;
+	}
+
+	if (r.type == 'e') {
+
+		NFA<char>* onlyEmptyString = new NFA<char>(
+			[](char x) { return (x == 'a') || (x == 'b'); },
+			'a',
+			[](char qi, int c) { return vector<char>{'b'}; },
+			[](char qi) { return vector<char>{}; },
+			[](char qi) { return qi == 'a'; }
+		);
+
+		return onlyEmptyString;
+	}
+
+	if (r.type == 's') {
+
+		return convert(onlyCharDFA(r.c));
+
+	}
+
+	if (r.type == 'u') {
+
+		return unionNFA(compile<T>(*r.lhs), compile<T>(*r.rhs));
+
+	}
+
+	if (r.type == 'k') {
+
+		return kleeneStar(compile<T>(*r.lhs));
+
+	}
+
+	if (r.type == 'c') {
+
+		return concatenateNFA(compile<T>(*r.lhs), compile<T>(*r.rhs));
+
+	}
+
+	cout << "=======\nCompile function incorrect type! Type given is " << r.type << "\n======= \n";
 
 }
