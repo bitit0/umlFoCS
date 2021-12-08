@@ -133,6 +133,9 @@ void printRegex(Regex r);
 template<typename T>
 NFA<T> compile(Regex r);
 
+template<typename T>
+bool regEquality(Regex r1, Regex r2);
+
 int main() {
 
 	vector<int> v = { 0, 1 }; // alphabet
@@ -2318,6 +2321,13 @@ bool regEquality(Regex r1, Regex r2) {
 
 	vector<int> alphabet = { 0, 1 };
 
-	return equality(NFAtoDFA(compile(r1)), NFAtoDFA(compile(r2)), alphabet);
+	return equality(NFAtoDFA(compile<T>(r1)), NFAtoDFA(compile<T>(r2)), alphabet);
+
+}
+
+template<typename T>
+Regex regOptimize(Regex r) {
+
+
 
 }
