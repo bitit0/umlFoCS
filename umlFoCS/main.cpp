@@ -888,18 +888,18 @@ int main() {
 	//cout << oracle(*thirdFromEndIsOne, oracleTestString, oracleTestTrace, true);
 
 
-	//vector<int> tfeioTest = { 0,0,0,1,0,1 };
-	////traceTree<char> printableTraceTree = explore(*thirdFromEndIsOne, tfeioTest);
+	vector<int> tfeioTest = { 0,0,0,1,0,1 };
+	//traceTree<char> printableTraceTree = explore(*thirdFromEndIsOne, tfeioTest);
 
-	//vector<int> ss101or11 = { 0,1,0,1,0,0 };
-	//cout << "\nTrace Tree of substring101or11 & \"010100\"" << endl;
-	//traceTree<char> printableTraceTree = explore(*substring101or11, ss101or11);
-	//printTraceTree(printableTraceTree, 0);
+	vector<int> ss101or11 = { 0,1,0,1,0,0 };
+	/*cout << "\nTrace Tree of substring101or11 & \"010100\"" << endl;
+	traceTree<char> printableTraceTree = explore(*substring101or11, ss101or11);
+	printTraceTree(printableTraceTree, 0);*/
 
-	////cout << backtracking(*substring101or11, ss101or11);
-	////backtracking(*substring101or11, ss101or11);
+	//cout << backtracking(*substring101or11, ss101or11);
+	//backtracking(*substring101or11, ss101or11);
 
-	//cout << "\nBacktracking Test: " << backtracking(*endsIn01, tfeioTest);
+	cout << "\nBacktracking Test: " << backtracking(*endsIn01, tfeioTest);
 
 	//vector<int> teststr = { 0,0,0,1,0,1 };
 	//vector<int> teststr2 = { 1,1,0,1,0,1 };
@@ -917,13 +917,13 @@ int main() {
 
 	//auto nfaConvertTest1 = NFAtoDFA(*thirdFromEndIsOne);
 
-	Regex lhs('s', 5);
+	/*Regex lhs('s', 5);
 	Regex rhs('s', 6);
 
 	Regex un('u', &lhs, &rhs);
 	Regex st('k', &lhs);
 	printRegex(un); cout << "\n";
-	printRegex(st);
+	printRegex(st);*/
 
 
 	return 0;
@@ -1685,44 +1685,101 @@ void printTraceTree(traceTree<T> tree, int tabc) {
 template<typename T>
 bool backtracking(NFA<T> n, vector<int> w) {
 
-	return backtrackingHelper(n, w, n.q0);
+	vector<pair<T, vector<int>>> visited;
+	vector<pair<T, vector<int>>> pending;
+	pending.push_back(pair<T, vector<int>>(n.q0, w));
 
-}
+	while (!pending.empty()) {
 
-template<typename T>
-bool backtrackingHelper(NFA<T> n, vector<int> w, T qi) {
+		pair<T, vector<int>> qi = pending.front();
+		pending.erase(pending.begin());
 
-	vector<T> epsilonQjs = n.epsilonTransition(qi);
+		if (qi.second.empty() && n.F(qi.first)) {
 
-	for (auto item : epsilonQjs) {
+			return true;
 
-		if (backtrackingHelper(n, w, item)) return true;
+		}
 
-	}
+		auto epsilonQjs = n.epsilonTransition(qi.first);
+		for (int i = 0; i < epsilonQjs.size(); i++) {
 
-	if (!w.empty()) {
+			pair<T, vector<int>> temp(epsilonQjs.at(i), w);
 
+			if (find(visited.begin(), visited.end(), temp) == visited.end()) {
+
+				cout << "e";
+				pending.push_back(temp);
+				visited.push_back(temp);
+
+			}
+
+		}
+
+		vector<int> wPrime(w);
 		int c = w.at(0);
+		wPrime.erase(wPrime.begin());
 
-		vector<T> deltaQjs = n.D(qi, c);
-		w.erase(w.begin());
+		auto deltaQjs = n.D(qi.first, c);
+		
+		for (int i = 0; i < deltaQjs.size(); i++) {
 
-		for (auto item : deltaQjs) {
+			pair<T, vector<int>> temp(deltaQjs.at(i), wPrime);
 
-			if (backtrackingHelper(n, w, item)) return true;
+			if (find(visited.begin(), visited.end(), temp) == visited.end()) {
+
+				pending.push_back(temp);
+				visited.push_back(temp);
+
+			}
 
 		}
 
 	}
-	else {
-
-		return n.F(qi);
-
-	}
 
 	return false;
-
 }
+
+//template<typename T>
+//bool backtracking(NFA<T> n, vector<int> w) {
+//
+//	return backtrackingHelper(n, w, n.q0);
+//
+//}
+//
+//template<typename T>
+//bool backtrackingHelper(NFA<T> n, vector<int> w, T qi) {
+//
+//	vector<T> epsilonQjs = n.epsilonTransition(qi);
+//
+//	for (auto item : epsilonQjs) {
+//
+//		if (backtrackingHelper(n, w, item)) return true;
+//
+//	}
+//
+//	if (!w.empty()) {
+//
+//		int c = w.at(0);
+//
+//		vector<T> deltaQjs = n.D(qi, c);
+//		w.erase(w.begin());
+//
+//		for (auto item : deltaQjs) {
+//
+//			if (backtrackingHelper(n, w, item)) return true;
+//
+//		}
+//
+//	}
+//	else {
+//
+//		return n.F(qi);
+//
+//	}
+//
+//	return false;
+//
+//}
 
 template<typename A, typename B>
 NFA<pair<int, pair<optional<A>, optional<B>>>> unionNFA(NFA<A> a, NFA<B> b) {
