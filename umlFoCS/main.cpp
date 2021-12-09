@@ -51,6 +51,7 @@ public:
 
 class Regex {
 public:
+	Regex();
 	Regex(char type) : type(type) {};							// epsilon, null
 	Regex(char type, int c) : type(type), c(c) {};					// singleton
 	Regex(char type, Regex* lhs, Regex* rhs) : type(type), lhs(lhs), rhs(rhs) {};	// union, concat
@@ -135,6 +136,8 @@ NFA<T> compile(Regex r);
 
 template<typename T>
 bool regEquality(Regex r1, Regex r2);
+
+void regTests();
 
 int main() {
 
@@ -919,7 +922,7 @@ int main() {
 	//
 	vector ksTest = { 1, 0, 0 };
 
-	cout << backtracking(kleeneStar(*thirdFromEndIsOne), ksTest);
+	//cout << backtracking(kleeneStar(*thirdFromEndIsOne), ksTest);
 
 	//auto nfaConvertTest1 = NFAtoDFA(*thirdFromEndIsOne);
 
@@ -930,6 +933,8 @@ int main() {
 	Regex st('k', &lhs);
 	printRegex(un); cout << "\n";
 	printRegex(st);*/
+
+	regTests();
 
 
 	return 0;
@@ -1688,105 +1693,105 @@ void printTraceTree(traceTree<T> tree, int tabc) {
 
 }
 
-template<typename T>
-bool backtracking(NFA<T> n, vector<int> w) {
-
-	vector<pair<T, vector<int>>> visited;
-	vector<pair<T, vector<int>>> pending;
-	pending.push_back(pair<T, vector<int>>(n.q0, w));
-
-	while (!pending.empty()) {
-
-		pair<T, vector<int>> qi = pending.front();
-		pending.erase(pending.begin());
-
-		if (qi.second.empty() && n.F(qi.first)) {
-
-			return true;
-
-		}
-
-		auto epsilonQjs = n.epsilonTransition(qi.first);
-		for (int i = 0; i < epsilonQjs.size(); i++) {
-
-			pair<T, vector<int>> temp(epsilonQjs.at(i), w);
-
-			if (find(visited.begin(), visited.end(), temp) == visited.end()) {
-
-				cout << "e";
-				pending.push_back(temp);
-				visited.push_back(temp);
-
-			}
-
-		}
-
-		vector<int> wPrime(w);
-		int c = w.at(0);
-		wPrime.erase(wPrime.begin());
-
-		auto deltaQjs = n.D(qi.first, c);
-		
-		for (int i = 0; i < deltaQjs.size(); i++) {
-
-			pair<T, vector<int>> temp(deltaQjs.at(i), wPrime);
-
-			if (find(visited.begin(), visited.end(), temp) == visited.end()) {
-
-				cout << "d";
-				pending.push_back(temp);
-				visited.push_back(temp);
-
-			}
-
-		}
-
-	}
-
-	return false;
-}
-
 //template<typename T>
 //bool backtracking(NFA<T> n, vector<int> w) {
 //
-//	return backtrackingHelper(n, w, n.q0);
+//	vector<pair<T, vector<int>>> visited;
+//	vector<pair<T, vector<int>>> pending;
+//	pending.push_back(pair<T, vector<int>>(n.q0, w));
 //
-//}
+//	while (!pending.empty()) {
 //
-//template<typename T>
-//bool backtrackingHelper(NFA<T> n, vector<int> w, T qi) {
+//		pair<T, vector<int>> qi = pending.front();
+//		pending.erase(pending.begin());
 //
-//	vector<T> epsilonQjs = n.epsilonTransition(qi);
+//		if (qi.second.empty() && n.F(qi.first)) {
 //
-//	for (auto item : epsilonQjs) {
+//			return true;
 //
-//		if (backtrackingHelper(n, w, item)) return true;
+//		}
 //
-//	}
+//		auto epsilonQjs = n.epsilonTransition(qi.first);
+//		for (int i = 0; i < epsilonQjs.size(); i++) {
 //
-//	if (!w.empty()) {
+//			pair<T, vector<int>> temp(epsilonQjs.at(i), w);
 //
+//			if (find(visited.begin(), visited.end(), temp) == visited.end()) {
+//
+//				cout << "e";
+//				pending.push_back(temp);
+//				visited.push_back(temp);
+//
+//			}
+//
+//		}
+//
+//		vector<int> wPrime(w);
 //		int c = w.at(0);
+//		wPrime.erase(wPrime.begin());
 //
-//		vector<T> deltaQjs = n.D(qi, c);
-//		w.erase(w.begin());
+//		auto deltaQjs = n.D(qi.first, c);
+//		
+//		for (int i = 0; i < deltaQjs.size(); i++) {
 //
-//		for (auto item : deltaQjs) {
+//			pair<T, vector<int>> temp(deltaQjs.at(i), wPrime);
 //
-//			if (backtrackingHelper(n, w, item)) return true;
+//			if (find(visited.begin(), visited.end(), temp) == visited.end()) {
+//
+//				cout << "d";
+//				pending.push_back(temp);
+//				visited.push_back(temp);
+//
+//			}
 //
 //		}
 //
 //	}
-//	else {
-//
-//		return n.F(qi);
-//
-//	}
 //
 //	return false;
-//
 //}
+
+template<typename T>
+bool backtracking(NFA<T> n, vector<int> w) {
+
+	return backtrackingHelper(n, w, n.q0);
+
+}
+
+template<typename T>
+bool backtrackingHelper(NFA<T> n, vector<int> w, T qi) {
+
+	vector<T> epsilonQjs = n.epsilonTransition(qi);
+
+	for (auto item : epsilonQjs) {
+
+		if (backtrackingHelper(n, w, item)) return true;
+
+	}
+
+	if (!w.empty()) {
+
+		int c = w.at(0);
+
+		vector<T> deltaQjs = n.D(qi, c);
+		w.erase(w.begin());
+
+		for (auto item : deltaQjs) {
+
+			if (backtrackingHelper(n, w, item)) return true;
+
+		}
+
+	}
+	else {
+
+		return n.F(qi);
+
+	}
+
+	return false;
+
+}
 
 template<typename A, typename B>
 NFA<pair<int, pair<optional<A>, optional<B>>>> unionNFA(NFA<A> a, NFA<B> b) {
@@ -2046,6 +2051,17 @@ NFA<T> kleeneStar(NFA<T> n) {
 
 		vector<T> k_transitions;
 		k_transitions = n.D(qi, c);
+
+		if (qi == k_q0) {				// new epsilon transitions
+
+			k_transitions.push_back(n.q0);	// if at q0, go to the machine N
+
+		}
+		else {
+
+			k_transitions.push_back(k_q0);	// if at machine N, then go to q0
+
+		}
 
 		return k_transitions;
 	};
@@ -2343,5 +2359,95 @@ template<typename T>
 Regex regOptimize(Regex r) {
 
 
+
+}
+
+void regTests() {
+
+	// 01*
+	Regex* singleOneThenZeros =
+		new Regex('c',
+			new Regex('s', 1),
+			new Regex('k', new Regex('s', 0))
+		);
+
+	// 10*
+	Regex* singleZeroThenOnes =
+		new Regex('c',
+			new Regex('s', 0),
+			new Regex('k', new Regex('s', 1))
+		);
+
+	// 1
+	Regex* singleOne =
+		new Regex('s', 1);
+
+	// 0
+	Regex* singleZero =
+		new Regex('s', 0);
+
+	// 0*1*
+	Regex* ZerosThenOnes =
+		new Regex('c',
+			new Regex('k', new Regex('s', 0)),
+			new Regex('k', new Regex('s', 1))
+		);
+
+	// 1*0*
+	Regex* onesThenZeros =
+		new Regex('c',
+			new Regex('k', new Regex('s', 1)),
+			new Regex('k', new Regex('s', 0))
+		);
+
+	// 1*
+	Regex* onlyOnes =
+		new Regex('k', new Regex('s', 1)
+		);
+
+	// 0*
+	Regex* onlyZeros =
+		new Regex('k', new Regex('s', 0)
+		);
+
+	// (01)*
+	Regex* zeroOneStar =
+		new Regex('k',
+			new Regex('c',
+				new Regex('s', 0),
+				new Regex('s', 1)
+			)
+		);
+
+	// (10)*
+	Regex* oneZeroStar =
+		new Regex('k',
+			new Regex('c',
+				new Regex('s', 1),
+				new Regex('s', 0)
+			)
+		);
+
+	// (00)*
+	Regex* zeroZeroStar =
+		new Regex('k',
+			new Regex('c',
+				new Regex('s', 0),
+				new Regex('s', 0)
+			)
+		);
+
+	// (11)*
+	Regex* oneOneStar =
+		new Regex('k',
+			new Regex('c',
+				new Regex('s', 1),
+				new Regex('s', 1)
+			)
+		);
+
+	printRegex(*onlyZeros);
+	cout << "\n";
+	printRegex(*oneOneStar);
 
 }
