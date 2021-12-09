@@ -934,7 +934,9 @@ int main() {
 	printRegex(un); cout << "\n";
 	printRegex(st);*/
 
-	regTests();
+	DFAtoString(NFAtoDFA(*thirdFromEndIsOne), v);
+
+	//regTests();
 
 
 	return 0;
