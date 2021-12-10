@@ -922,7 +922,7 @@ int main() {
 	//
 	vector ksTest = { 1, 0, 0 };
 
-	//cout << backtracking(kleeneStar(*thirdFromEndIsOne), ksTest);
+	cout << backtracking(kleeneStar(*thirdFromEndIsOne), ksTest);
 
 	//auto nfaConvertTest1 = NFAtoDFA(*thirdFromEndIsOne);
 
@@ -934,7 +934,7 @@ int main() {
 	printRegex(un); cout << "\n";
 	printRegex(st);*/
 
-	DFAtoString(NFAtoDFA(*thirdFromEndIsOne), v);
+	//DFAtoString(NFAtoDFA(*thirdFromEndIsOne), v);
 
 	//regTests();
 
@@ -1695,104 +1695,60 @@ void printTraceTree(traceTree<T> tree, int tabc) {
 
 }
 
-//template<typename T>
-//bool backtracking(NFA<T> n, vector<int> w) {
-//
-//	vector<pair<T, vector<int>>> visited;
-//	vector<pair<T, vector<int>>> pending;
-//	pending.push_back(pair<T, vector<int>>(n.q0, w));
-//
-//	while (!pending.empty()) {
-//
-//		pair<T, vector<int>> qi = pending.front();
-//		pending.erase(pending.begin());
-//
-//		if (qi.second.empty() && n.F(qi.first)) {
-//
-//			return true;
-//
-//		}
-//
-//		auto epsilonQjs = n.epsilonTransition(qi.first);
-//		for (int i = 0; i < epsilonQjs.size(); i++) {
-//
-//			pair<T, vector<int>> temp(epsilonQjs.at(i), w);
-//
-//			if (find(visited.begin(), visited.end(), temp) == visited.end()) {
-//
-//				cout << "e";
-//				pending.push_back(temp);
-//				visited.push_back(temp);
-//
-//			}
-//
-//		}
-//
-//		vector<int> wPrime(w);
-//		int c = w.at(0);
-//		wPrime.erase(wPrime.begin());
-//
-//		auto deltaQjs = n.D(qi.first, c);
-//		
-//		for (int i = 0; i < deltaQjs.size(); i++) {
-//
-//			pair<T, vector<int>> temp(deltaQjs.at(i), wPrime);
-//
-//			if (find(visited.begin(), visited.end(), temp) == visited.end()) {
-//
-//				cout << "d";
-//				pending.push_back(temp);
-//				visited.push_back(temp);
-//
-//			}
-//
-//		}
-//
-//	}
-//
-//	return false;
-//}
-
 template<typename T>
 bool backtracking(NFA<T> n, vector<int> w) {
 
-	return backtrackingHelper(n, w, n.q0);
+	vector<pair<T, vector<int>>> visited;
+	vector<pair<T, vector<int>>> pending;
+	pending.push_back(pair<T, vector<int>>(n.q0, w));
 
-}
+	while (!pending.empty()) {
 
-template<typename T>
-bool backtrackingHelper(NFA<T> n, vector<int> w, T qi) {
+		pair<T, vector<int>> qi = pending.front();
+		pending.erase(pending.begin());
 
-	vector<T> epsilonQjs = n.epsilonTransition(qi);
+		if (qi.second.empty() && n.F(qi.first)) {
 
-	for (auto item : epsilonQjs) {
+			return true;
 
-		if (backtrackingHelper(n, w, item)) return true;
+		}
 
-	}
+		auto epsilonQjs = n.epsilonTransition(qi.first);
+		for (int i = 0; i < epsilonQjs.size(); i++) {
 
-	if (!w.empty()) {
+			pair<T, vector<int>> temp(epsilonQjs.at(i), qi.second);
 
-		int c = w.at(0);
+			if (find(visited.begin(), visited.end(), temp) == visited.end()) {
 
-		vector<T> deltaQjs = n.D(qi, c);
-		w.erase(w.begin());
+				pending.push_back(temp);
+				visited.push_back(temp);
 
-		for (auto item : deltaQjs) {
+			}
 
-			if (backtrackingHelper(n, w, item)) return true;
+		}
+
+		vector<int> wPrime(qi.second);
+		int c = qi.second.at(0);
+		wPrime.erase(wPrime.begin());
+
+		auto deltaQjs = n.D(qi.first, c);
+		
+		for (int i = 0; i < deltaQjs.size(); i++) {
+
+			pair<T, vector<int>> temp(deltaQjs.at(i), wPrime);
+
+			if (find(visited.begin(), visited.end(), temp) == visited.end()) {
+
+				pending.push_back(temp);
+				visited.push_back(temp);
+
+			}
 
 		}
 
 	}
-	else {
-
-		return n.F(qi);
-
-	}
 
 	return false;
-
 }
 
 template<typename A, typename B>
