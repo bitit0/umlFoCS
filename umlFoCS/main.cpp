@@ -111,9 +111,6 @@ void printTraceTree(traceTree<T> tree, int count);
 template<typename T>
 bool backtracking(NFA<T> n, vector<int> w);
 
-template<typename T>
-bool backtrackingHelper(NFA<T> n, vector<int> w, T qi);
-
 template<typename A, typename B>
 NFA< pair< int, pair< optional<A>, optional<B> > > > unionNFA(NFA<A> a, NFA<B> b);
 
@@ -136,6 +133,9 @@ NFA<T> compile(Regex r);
 
 template<typename T>
 bool regEquality(Regex r1, Regex r2);
+
+template<typename T>
+void kleeneStarTests(vector<NFA<T>> NFApt, vector<string> listOfNFAs);
 
 void regTests();
 
@@ -851,6 +851,7 @@ int main() {
 		},
 		[](char qi) {
 			if (qi == 'b') return vector<char>{'a', 'c'};
+			return vector<char>{};
 		},
 		[](char qi) { return (qi == 'a') || (qi == 'd'); }
 		);
@@ -874,6 +875,7 @@ int main() {
 		},
 		[](char qi) {
 			if (qi == 'b') return vector<char>{'c'};
+			return vector<char>{};
 		},
 			[](char qi) { return (qi == 'd'); }
 		);
@@ -920,9 +922,6 @@ int main() {
 
 	////vector<pair<T, list<int>>> trace
 	//
-	vector ksTest = { 1, 0, 0 };
-
-	cout << backtracking(kleeneStar(*thirdFromEndIsOne), ksTest);
 
 	//auto nfaConvertTest1 = NFAtoDFA(*thirdFromEndIsOne);
 
@@ -937,6 +936,8 @@ int main() {
 	//DFAtoString(NFAtoDFA(*thirdFromEndIsOne), v);
 
 	//regTests();
+
+	kleeneStarTests(NFApt, listOfNFAs);
 
 
 	return 0;
@@ -1728,22 +1729,24 @@ bool backtracking(NFA<T> n, vector<int> w) {
 		}
 
 		vector<int> wPrime(qi.second);
-		int c = qi.second.at(0);
-		wPrime.erase(wPrime.begin());
+		if (qi.second.size() > 0) {
+			int c = qi.second.at(0);
+			wPrime.erase(wPrime.begin());
 
-		auto deltaQjs = n.D(qi.first, c);
-		
-		for (int i = 0; i < deltaQjs.size(); i++) {
+			auto deltaQjs = n.D(qi.first, c);
 
-			pair<T, vector<int>> temp(deltaQjs.at(i), wPrime);
+			for (int i = 0; i < deltaQjs.size(); i++) {
 
-			if (find(visited.begin(), visited.end(), temp) == visited.end()) {
+				pair<T, vector<int>> temp(deltaQjs.at(i), wPrime);
 
-				pending.push_back(temp);
-				visited.push_back(temp);
+				if (find(visited.begin(), visited.end(), temp) == visited.end()) {
+
+					pending.push_back(temp);
+					visited.push_back(temp);
+
+				}
 
 			}
-
 		}
 
 	}
@@ -2315,6 +2318,39 @@ bool regEquality(Regex r1, Regex r2) {
 
 template<typename T>
 Regex regOptimize(Regex r) {
+
+
+
+}
+
+template<typename T>
+void kleeneStarTests(vector<NFA<T>> NFApt, vector<string> listOfNFAs) {
+
+	// vector<NFA<char>> NFApt = { *thirdFromEndIsOne, *thirdFromEndIsZero, *substring101or11, *endsIn01, *endsIn10, *secondFromEndIsOne,
+	//*secondFromEndIsZero, * alphabetIs10and101, * substring00or11, * endsIn101, * lastCharIsZeroOrContainsOnlyOnes, * oneAtThirdOrSecondFromEnd
+
+	cout << "== KLEENE STAR TESTS ==" << endl;
+
+	vector<vector<int>> testString = { { 1, 0, 0, 1, 0, 0 }, {0, 0, 1, 0, 0, 0}, {1, 0, 1, 1, 1, 0}, {1, 0, 1, 0, 0, 1},
+		{0, 1, 0, 1, 1, 0}, {0, 1, 0, 1, 1, 0}, {1, 0, 1, 0, 0, 0}, {1, 0}, {0, 0, 1, 1}, {1, 0, 1, 1, 1, 0, 1}, {0, 1, 1, 1}, {1, 0, 0, 0, 1, 0} };
+
+	for (int i = 0; i < testString.size(); i++) {
+
+		cout << "Testing string: ";
+		for (int j = 0; j < testString[i].size(); j++) {
+
+			cout << testString[i][j];
+
+		}
+		cout << " on the KS of " << listOfNFAs[i] << ": " << backtracking(kleeneStar(NFApt[i]), testString[i]) << endl;
+
+	}
+
+
+}
+
+template<typename T>
+void NFAtoDFATests(vector<NFA<T>> NFApt, vector<string> listOfNFAs, vector<int> alphabet) {
 
 
 
