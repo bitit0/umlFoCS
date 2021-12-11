@@ -137,7 +137,12 @@ bool regEquality(Regex r1, Regex r2);
 template<typename T>
 void kleeneStarTests(vector<NFA<T>> NFApt, vector<string> listOfNFAs);
 
-void regTests();
+template<typename T>
+void NFAtoDFATests(vector<NFA<T>> NFApt, vector<string> listOfNFAs, vector<int> alphabet);
+
+void listOfRegexes();
+
+void compileTests();
 
 int main() {
 
@@ -938,7 +943,8 @@ int main() {
 	//regTests();
 
 	kleeneStarTests(NFApt, listOfNFAs);
-
+	NFAtoDFATests(NFApt, listOfNFAs, v);
+	//compileTests();
 
 	return 0;
 }
@@ -2120,11 +2126,11 @@ DFA<vector<T>> NFAtoDFA(NFA<T> n) {
 		vector<T> possible;
 		for (int i = 0; i < qis.size(); i++) {						// for every state
 
-			vector<T> deltaTransitions = n.D(qis.at(i), c);			// get delta transitions
+			vector<T> deltaTransitions = n.D(qis.at(i), c);			// get delta transitions														
 
-			for (int j = 0; j < deltaTransitions.size(); j++) {
+			for (int j = 0; j < deltaTransitions.size(); j++) {		// unioning
 
-				possible.push_back(deltaTransitions.at(i));			// unioning
+				possible.push_back(deltaTransitions.at(j));
 
 			}
 
@@ -2329,7 +2335,7 @@ void kleeneStarTests(vector<NFA<T>> NFApt, vector<string> listOfNFAs) {
 	// vector<NFA<char>> NFApt = { *thirdFromEndIsOne, *thirdFromEndIsZero, *substring101or11, *endsIn01, *endsIn10, *secondFromEndIsOne,
 	//*secondFromEndIsZero, * alphabetIs10and101, * substring00or11, * endsIn101, * lastCharIsZeroOrContainsOnlyOnes, * oneAtThirdOrSecondFromEnd
 
-	cout << "== KLEENE STAR TESTS ==" << endl;
+	cout << "== Kleene Star Tests ==" << endl;
 
 	vector<vector<int>> testString = { { 1, 0, 0, 1, 0, 0 }, {0, 0, 1, 0, 0, 0}, {1, 0, 1, 1, 1, 0}, {1, 0, 1, 0, 0, 1},
 		{0, 1, 0, 1, 1, 0}, {0, 1, 0, 1, 1, 0}, {1, 0, 1, 0, 0, 0}, {1, 0}, {0, 0, 1, 1}, {1, 0, 1, 1, 1, 0, 1}, {0, 1, 1, 1}, {1, 0, 0, 0, 1, 0} };
@@ -2352,11 +2358,68 @@ void kleeneStarTests(vector<NFA<T>> NFApt, vector<string> listOfNFAs) {
 template<typename T>
 void NFAtoDFATests(vector<NFA<T>> NFApt, vector<string> listOfNFAs, vector<int> alphabet) {
 
+	// vector<NFA<char>> NFApt = { *thirdFromEndIsOne, *thirdFromEndIsZero, *substring101or11, *endsIn01, *endsIn10, *secondFromEndIsOne,
+	//*secondFromEndIsZero, * alphabetIs10and101, * substring00or11, * endsIn101, * lastCharIsZeroOrContainsOnlyOnes, * oneAtThirdOrSecondFromEnd
 
+	cout << "== NFA to DFA Tests ==" << endl;
+
+	for (int i = 0; i < NFApt.size(); i++) {
+
+		auto acceptedString = DFAtoString(NFAtoDFA(NFApt[i]), alphabet).value_or(list<int>{7});
+
+		cout << "Testing " << listOfNFAs[i] << ": ";
+
+		for (auto c : acceptedString) {
+
+			cout << c;
+
+		}
+
+		cout << endl;
+
+	}
+	
 
 }
 
-void regTests() {
+void compileTests() {
+
+	cout << "\n== Compile Test ==" << endl;
+
+	// 1
+	Regex* singleOne =
+		new Regex('s', 1);
+
+	NFA<char>* singleOneDFA = new NFA<char>(
+		[](char qi) { return (qi == 'a') || (qi == 'b') || (qi == 'c'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				if (c == 1) return vector<char>{'b'};
+			}
+			return vector<char>{'c'};
+		},
+		[](char qi) { return vector<char>{}; },
+			[](char qi) { return qi == 'b'; }
+		);
+
+	cout << "Regex: ";
+	printRegex(*singleOne);
+	cout << endl << "DFA accepts: ";
+	
+	vector<int> alphabet = { 0, 1 };
+
+	auto convertedString = DFAtoString(NFAtoDFA(*singleOneDFA), alphabet).value_or(list<int>(7));
+
+	for (auto s : convertedString) {
+
+		cout << s;
+
+	}
+
+}
+
+void listOfRegexes() {
 
 	// 01*
 	Regex* singleOneThenZeros =
@@ -2443,5 +2506,11 @@ void regTests() {
 	printRegex(*onlyZeros);
 	cout << "\n";
 	printRegex(*oneOneStar);
+
+}
+
+void regEqualityTests() {
+
+
 
 }
