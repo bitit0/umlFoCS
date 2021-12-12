@@ -142,6 +142,9 @@ void NFAtoDFATests(vector<NFA<T>> NFApt, vector<string> listOfNFAs, vector<int> 
 
 void listOfRegexes();
 
+template<typename T>
+void manualCompileTest();
+
 void compileTests();
 
 int main() {
@@ -943,8 +946,9 @@ int main() {
 	//regTests();
 
 	kleeneStarTests(NFApt, listOfNFAs);
+	compileTests();
 	NFAtoDFATests(NFApt, listOfNFAs, v);
-	//compileTests();
+	manualCompileTest<vector<char>>();
 
 	return 0;
 }
@@ -2416,7 +2420,7 @@ void compileTests() {
 		cout << s;
 
 	}
-
+	cout << "\n" << endl;
 }
 
 void listOfRegexes() {
@@ -2506,6 +2510,76 @@ void listOfRegexes() {
 	printRegex(*onlyZeros);
 	cout << "\n";
 	printRegex(*oneOneStar);
+
+}
+
+template<typename T>
+void manualCompileTest() {
+
+	NFA<char>* bookExampleNFA = new NFA<char>(
+		[](char x) { return (x == 'a') || (x == 'b') || (x == 'c'); },
+		'a',
+		[](char qi, int c) {
+			if (qi == 'a') {
+				if (c == 1) return vector<char>{'b'};
+			}
+			if (qi == 'b') {
+				if (c == 0) return vector<char>{'b', 'c'};
+				if (c == 1) return vector<char>{'c'};
+			}
+			if (qi == 'c') {
+				if (c == 0) return vector<char>{'a'};
+			}
+			return vector<char>{};
+		},
+		[](char qi) {
+			if (qi == 'a') {
+				return vector<char>{'c'};
+			}
+			return vector<char>{};
+		},
+		[](char qi) { return qi == 'a'; }
+		);
+
+	DFA<T> converted_bookExampleNFA = NFAtoDFA(*bookExampleNFA);
+
+	DFA<T>* bookExampleDFA = new DFA<T>(
+		[](T x) { return (x == vector<char>{'a', 'c'}) || (x == vector<char>{'b'}) || (x == vector<char>{'c'}) || (x == vector<char>{'b', 'c'}) || (x == vector<char>{'a', 'b', 'c'}) || (x == vector<char>{'f'}); },
+		vector<char>{'a', 'c'},
+		[](T qi, int c) {
+			if (qi == vector<char>{'a', 'c'}) {
+				if (c == 0) return vector<char>{'a', 'c'};
+				if (c == 1) return vector<char>{'b'};
+			}
+			if (qi == vector<char>{'b'}) {
+				if (c == 0) return vector<char>{'b', 'c'};
+				if (c == 1) return vector<char>{'c'};
+			}
+			if (qi == vector<char>{'c'}) {
+				if (c == 0) return vector<char>{'a', 'c'};
+				if (c == 1) return vector<char>{'f'};
+			}
+			if (qi == vector<char>{'b', 'c'}) {
+				if (c == 0) return vector<char>{'a', 'b', 'c'};
+				if (c == 1) return vector<char>{'c'};
+			}
+			if (qi == vector<char>{'a', 'b', 'c'}) {
+				if (c == 0) return vector<char>{'a', 'b', 'c'};
+				if (c == 1) return vector<char>{'b', 'c'};
+			}
+			if (qi == vector<char>{'f'}) {
+				if (c == 0 || c == 1) return vector<char>{'f'};
+			}
+			return vector<char>{};
+		},
+		[](T qi) { return qi == vector<char>{'a', 'c'} || qi == vector<char>{'a', 'b', 'c'}; }
+		);
+
+	vector<int> alphabet = { 0, 1 };
+
+	cout << "\n== Manual Compile Test==\n";
+	cout << equality(converted_bookExampleNFA, *bookExampleDFA, alphabet) << endl;
+
 
 }
 
