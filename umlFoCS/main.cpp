@@ -131,7 +131,7 @@ void printRegex(Regex r);
 template<typename T>
 NFA<T> compile(Regex r);
 
-template<typename T>
+template<typename A, typename B>
 bool regEquality(Regex r1, Regex r2);
 
 template<typename T>
@@ -146,6 +146,8 @@ template<typename T>
 void manualCompileTest();
 
 void compileTests();
+
+void regEqualityTests();
 
 int main() {
 
@@ -949,6 +951,8 @@ int main() {
 	compileTests();
 	NFAtoDFATests(NFApt, listOfNFAs, v);
 	manualCompileTest<vector<char>>();
+
+	//regEqualityTests();
 
 	return 0;
 }
@@ -2265,7 +2269,7 @@ NFA<T> compile(Regex r) {
 
 	if (r.type == 'n') {
 
-		NFA<char>* acceptNoStrings = new NFA<char>(
+		NFA<char> acceptNoStrings = NFA<char>(
 			[](char x) { return x == 'a'; },
 			'a',
 			[](char qi, int c) { return vector<char>{'a'}; },
@@ -2278,7 +2282,7 @@ NFA<T> compile(Regex r) {
 
 	if (r.type == 'e') {
 
-		NFA<char>* onlyEmptyString = new NFA<char>(
+		NFA<char> onlyEmptyString = NFA<char>(
 			[](char x) { return (x == 'a') || (x == 'b'); },
 			'a',
 			[](char qi, int c) { return vector<char>{'b'}; },
@@ -2297,19 +2301,19 @@ NFA<T> compile(Regex r) {
 
 	if (r.type == 'u') {
 
-		return unionNFA(compile<T>(*r.lhs), compile<T>(*r.rhs));
+		return unionNFA(compile<char>(*r.lhs), compile<char>(*r.rhs));
 
 	}
 
 	if (r.type == 'k') {
 
-		return kleeneStar(compile<T>(*r.lhs));
+		return kleeneStar(compile<char>(*r.lhs));
 
 	}
 
 	if (r.type == 'c') {
 
-		return concatenateNFA(compile<T>(*r.lhs), compile<T>(*r.rhs));
+		return concatenateNFA(compile<char>(*r.lhs), compile<char>(*r.rhs));
 
 	}
 
@@ -2317,12 +2321,12 @@ NFA<T> compile(Regex r) {
 
 }
 
-template<typename T>
+template<typename A, typename B>
 bool regEquality(Regex r1, Regex r2) {
 
 	vector<int> alphabet = { 0, 1 };
 
-	return equality(NFAtoDFA(compile<T>(r1)), NFAtoDFA(compile<T>(r2)), alphabet);
+	return equality(NFAtoDFA(compile<A>(r1)), NFAtoDFA(compile<B>(r2)), alphabet);
 
 }
 
@@ -2583,8 +2587,18 @@ void manualCompileTest() {
 
 }
 
-void regEqualityTests() {
-
-
-
-}
+//void regEqualityTests() {
+//
+//	Regex* singleOneThenZeros =
+//		new Regex('c',
+//			new Regex('s', 1),
+//			new Regex('k', new Regex('s', 0))
+//		);
+//
+//	Regex* sotzNull =
+//		new Regex('u', singleOneThenZeros, new Regex('n'));
+//
+//	cout << "\nsingleOneThenZeros & sotzNull: ";
+//	cout << regEquality(*singleOneThenZeros, *sotzNull) << endl;
+//
+//}
