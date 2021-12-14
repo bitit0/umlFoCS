@@ -2429,53 +2429,53 @@ void compileTests() {
 
 void listOfRegexes() {
 
-	// 01*
+	// 01* : 01, 011, 0111 | 0100, 1, 0010
 	Regex* singleOneThenZeros =
 		new Regex('c',
 			new Regex('s', 1),
 			new Regex('k', new Regex('s', 0))
 		);
 
-	// 10*
+	// 10* : 10, 100, 1000 | 101, 1011, 10100
 	Regex* singleZeroThenOnes =
 		new Regex('c',
 			new Regex('s', 0),
 			new Regex('k', new Regex('s', 1))
 		);
 
-	// 1
+	// 1 : 1 | 11, 0, 00
 	Regex* singleOne =
 		new Regex('s', 1);
 
-	// 0
+	// 0 : 0 | 00, 1, 10
 	Regex* singleZero =
 		new Regex('s', 0);
 
-	// 0*1*
+	// 0*1* : 0011, 01, 0001 | 101, 1011, 1010
 	Regex* ZerosThenOnes =
 		new Regex('c',
 			new Regex('k', new Regex('s', 0)),
 			new Regex('k', new Regex('s', 1))
 		);
 
-	// 1*0*
+	// 1*0* : 10, 1100, 1110 | 010, 0110, 0100
 	Regex* onesThenZeros =
 		new Regex('c',
 			new Regex('k', new Regex('s', 1)),
 			new Regex('k', new Regex('s', 0))
 		);
 
-	// 1*
+	// 1* : 1, 11, 111 | 0, 0, 000
 	Regex* onlyOnes =
 		new Regex('k', new Regex('s', 1)
 		);
 
-	// 0*
+	// 0* : 0, 00, 000 | 1, 1, 111
 	Regex* onlyZeros =
 		new Regex('k', new Regex('s', 0)
 		);
 
-	// (01)*
+	// (01)* : 01, 0101, 010101 | 1010, 1, 0
 	Regex* zeroOneStar =
 		new Regex('k',
 			new Regex('c',
@@ -2484,7 +2484,7 @@ void listOfRegexes() {
 			)
 		);
 
-	// (10)*
+	// (10)* : 10, 1010, 101010 | 0101, 0, 1
 	Regex* oneZeroStar =
 		new Regex('k',
 			new Regex('c',
@@ -2493,7 +2493,7 @@ void listOfRegexes() {
 			)
 		);
 
-	// (00)*
+	// (00)* : 00, 0000, 000000 | 0, 000, 1
 	Regex* zeroZeroStar =
 		new Regex('k',
 			new Regex('c',
@@ -2502,7 +2502,7 @@ void listOfRegexes() {
 			)
 		);
 
-	// (11)*
+	// (11)*: 11, 1111, 111111 | 0, 111, 11111
 	Regex* oneOneStar =
 		new Regex('k',
 			new Regex('c',
