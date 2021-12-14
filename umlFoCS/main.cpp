@@ -2429,14 +2429,14 @@ void compileTests() {
 
 void listOfRegexes() {
 
-	// 01* : 01, 011, 0111 | 0100, 1, 0010
+	// 10* : 10, 100, 1000 | 101, 1011, 10100
 	Regex* singleZeroThenOnes =
 		new Regex('c',
 			new Regex('s', 1),
 			new Regex('k', new Regex('s', 0))
 		);
 
-	// 10* : 10, 100, 1000 | 101, 1011, 10100
+	// 01* : 01, 011, 0111 | 0100, 1, 0010
 	Regex* singleOneThenZeros =
 		new Regex('c',
 			new Regex('s', 0),
